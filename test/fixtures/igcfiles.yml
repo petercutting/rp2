@@ -1,0 +1,11 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  filename: MyString
+  wind_direction: 1
+  wind_strength: 1
+
+two:
+  filename: MyString
+  wind_direction: 1
+  wind_strength: 1
