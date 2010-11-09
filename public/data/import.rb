@@ -3,10 +3,18 @@
 require File.join(File.dirname(__FILE__), "..", "..", "config", "boot")
 require File.join(File.dirname(__FILE__), "..", "..", "config", "environment")
 
+require 'activerecord'
+require 'activerecord-import'
+
+
+#gem install activerecord-import -v 0.2.0
+# rake task?
+
+
 class Import
 
   def import_igcfiles()
-
+    counter=0
     dir="public/data"
 
     Igcfile.delete_all
@@ -19,6 +27,10 @@ class Import
           import_a_igcfile(dir + "/" + file.to_s)
         end
       end
+      counter+=1
+      puts counter.to_s + ' ' + file.to_s
+      STDOUT.flush
+
     end
   end
 
@@ -35,6 +47,7 @@ class Import
 
   # relative X Y movement ENL curveing
   def import_a_igcfile(file)
+    objects = []
 
     begin
       igcfile = Igcfile.new()
@@ -53,15 +66,16 @@ class Import
       a=line.unpack('a1a6a7a1a8a1a14a3')
       if a[0].to_s == 'B'
         counter+=1
-        puts counter.to_s + ' ' + a[1].to_s + ' - ' + a[2].to_s
-        STDOUT.flush
+        #        puts counter.to_s + ' ' + a[1].to_s + ' - ' + a[2].to_s
+        #        STDOUT.flush
 
-        igcpoint = Igcpoint.new(:lat => a[2].to_s)
-        igcpoint.save
+        objects = Igcpoint.new(:lat => a[2].to_s)
+
       end
 
     end
 
+    Igcpoint.import objects
     fp.close
   end
 
