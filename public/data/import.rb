@@ -3,8 +3,10 @@
 require File.join(File.dirname(__FILE__), "..", "..", "config", "boot")
 require File.join(File.dirname(__FILE__), "..", "..", "config", "environment")
 
-require 'activerecord'
-require 'activerecord-import'
+#require 'active_record'
+
+#gem 'activerecord-import', '= 0.2.2'  # this is how to require a specific gem version
+require 'ar-extensions'
 
 
 #gem install activerecord-import -v 0.2.0
@@ -14,7 +16,7 @@ require 'activerecord-import'
 class Import
 
   def import_igcfiles()
-    counter=0
+    num_recs=0
     dir="public/data"
 
     Igcfile.delete_all
@@ -24,12 +26,13 @@ class Import
     for file in @files
       if file != "." && file != ".."
         if file.to_s.downcase.match(".igc")
-          import_a_igcfile(dir + "/" + file.to_s)
+          start = Time.now
+          num_recs = import_a_igcfile(dir + "/" + file.to_s)
+          secs =  Time.now - start
+          puts file.to_s + ' ' + num_recs.to_s + ' ' + (num_recs/secs).to_i.to_s
+          STDOUT.flush
         end
       end
-      counter+=1
-      puts counter.to_s + ' ' + file.to_s
-      STDOUT.flush
 
     end
   end
@@ -48,6 +51,7 @@ class Import
   # relative X Y movement ENL curveing
   def import_a_igcfile(file)
     objects = []
+    num_recs=1 # to prevent divide by zero
 
     begin
       igcfile = Igcfile.new()
@@ -65,18 +69,24 @@ class Import
 
       a=line.unpack('a1a6a7a1a8a1a14a3')
       if a[0].to_s == 'B'
-        counter+=1
+        num_recs=num_recs+1
         #        puts counter.to_s + ' ' + a[1].to_s + ' - ' + a[2].to_s
         #        STDOUT.flush
 
-        objects = Igcpoint.new(:lat => a[2].to_s)
+#columns = [ :author_name, :title ]
+#values = [ [ 'yoda', 'test post' ] ]
+#BlogPost.import columns, values, :synchronize=>[ post ]
+
+        objects << Igcpoint.new(:lat => a[2].to_s)
 
       end
 
     end
 
-    Igcpoint.import objects
+    #    Igcpoint.import objects
+    Igcpoint.import  objects
     fp.close
+    num_recs
   end
 
 
