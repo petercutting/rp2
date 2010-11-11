@@ -49,6 +49,13 @@ class Import
   #B1034265535706N01340750EA0003100037000012000000
   #B1038255535669N01339604EA0039000396000996000000
 
+# 0=rec
+# 1=time
+# 2=lat
+# 3=NS
+# 4=lon
+# 5=EW
+
   # relative X Y movement ENL curveing
   def import_a_igcfile(file)
     columns = [ :lat, :lon ]
