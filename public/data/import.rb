@@ -7,13 +7,14 @@ require File.join(File.dirname(__FILE__), "..", "..", "config", "environment")
 
 #gem 'activerecord-import', '= 0.2.2'  # this is how to require a specific gem version
 require 'ar-extensions'
-
+require 'ar-extensions/import/sqlite'
 
 #gem install activerecord-import -v 0.2.0
 # rake task?
 
 
 class Import
+  @@objects = []
 
   def import_igcfiles()
     num_recs=0
@@ -50,7 +51,9 @@ class Import
 
   # relative X Y movement ENL curveing
   def import_a_igcfile(file)
-    objects = []
+    columns = [ :lat, :lon ]
+
+    @@objects.clear
     num_recs=1 # to prevent divide by zero
 
     begin
@@ -70,21 +73,20 @@ class Import
       a=line.unpack('a1a6a7a1a8a1a14a3')
       if a[0].to_s == 'B'
         num_recs=num_recs+1
-        #        puts counter.to_s + ' ' + a[1].to_s + ' - ' + a[2].to_s
+
+        #        puts a[2].to_s + ' - ' + a[4].to_s
         #        STDOUT.flush
 
-#columns = [ :author_name, :title ]
-#values = [ [ 'yoda', 'test post' ] ]
-#BlogPost.import columns, values, :synchronize=>[ post ]
-
-        objects << Igcpoint.new(:lat => a[2].to_s)
+        @@objects << [ a[2].to_s,a[4].to_s ]
 
       end
 
     end
 
     #    Igcpoint.import objects
-    Igcpoint.import  objects
+    #    Igcpoint.import  objects
+    Igcpoint.import columns, @@objects
+
     fp.close
     num_recs
   end
