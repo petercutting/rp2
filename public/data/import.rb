@@ -36,7 +36,7 @@ class Import
   end
 
 
-
+#http://www.gliding.ch/images/news/lx20/fichiers_igc.htm#Brec
   #B0915235535648N01340869EA-006900049000
   #B0915355535648N01340870EA-007000049000
   #B091547 5535648 N 01340870 E A-007000049000
@@ -71,6 +71,7 @@ class Import
     # get I record
     b_extensions_struc=[:start,:finish,:mnemonic]
     b_extensions = []
+    b_extensions2 = Hash.new
     fp.each_line do |line|
       a=line.unpack('a1a2a7a7a7a7a7a7a7') # hopefully enough
       if a[0]=='A'
@@ -84,6 +85,8 @@ class Import
           0.upto(a[1].to_i){|n|
             b=a[n+2].unpack('a2a2a3')
             b_extensions << [b[0],b[1],b[2]]
+            #b_extensions2 << [:start => a[0], :finnish => b[1], :mnemonic => b[2]]
+            b_extensions2[b[2]]=[:start => b[0], :finnish => b[1]]
           }
         end
         break
@@ -94,6 +97,13 @@ class Import
     if b_extensions.length == 0
       puts 'No I record'
     end
+
+    if b_extensions2['ENL'].nil?
+      puts 'No ENL in I record'
+    else
+      puts b_extensions2['ENL'].inspect
+    end
+
 
     fp.each_line do |line|
 # 0(1)=rec, 1(6)=time, 2(8)=lat, 3(9)=lon, 4(1)=validity, 5(5)=baro_alt, 6(5)=gps_alt, 7(3)=fix_accuracy, 8(2)=num_satelites, 9(3)=enl
