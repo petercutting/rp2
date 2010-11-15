@@ -96,7 +96,7 @@ class Import
     end
 
     fp.each_line do |line|
-      # 0(1)=rec, 1(6)=time, 2(8)=lat, 3(9)=lon, 4(1)=validity, 5(5)=baro_alt, 6(5)=gps_alt, 7(3)=fix_accuracy, 8(2)=num_satelites, 9(3)=enl
+# 0(1)=rec, 1(6)=time, 2(8)=lat, 3(9)=lon, 4(1)=validity, 5(5)=baro_alt, 6(5)=gps_alt, 7(3)=fix_accuracy, 8(2)=num_satelites, 9(3)=enl
 
       a=line.unpack('a1a6a8a9a1a5a5a3a2a3')
       if a[0].to_s == 'B'
