@@ -1,7 +1,6 @@
 class AddFilenameIndex < ActiveRecord::Migration
   def self.up
-    add_index :igcfiles, :filename, :unique => true
-
+        add_index :igcfiles, :filename, :unique => true
   end
 
   def self.down
