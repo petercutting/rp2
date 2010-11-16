@@ -1,4 +1,3 @@
-
 # load Rails
 #require File.join(File.dirname(__FILE__), "..", "..", "config", "boot")
 require File.join(File.dirname(__FILE__), "..", "..", "config", "environment")
@@ -36,7 +35,7 @@ class Import
   end
 
 
-#http://www.gliding.ch/images/news/lx20/fichiers_igc.htm#Brec
+  #http://www.gliding.ch/images/news/lx20/fichiers_igc.htm#Brec
   #B0915235535648N01340869EA-006900049000
   #B0915355535648N01340870EA-007000049000
   #B091547 5535648 N 01340870 E A-007000049000
@@ -49,7 +48,7 @@ class Import
   # relative X Y movement ENL curveing
   def import_a_igcfile(file)
 
-    columns = [ :lat, :lon, :baro_alt, :gps_alt, :enl]
+    columns = [ :lat, :lon, :baro_alt, :gps_alt, :enl, :seq_secs]
 
     @@objects.clear
     num_recs=1 # to prevent divide by zero
@@ -63,14 +62,12 @@ class Import
     end
 
 
-# I033638FXA3941ENL4247REX        an I record defines B record extensions
+    # I033638FXA3941ENL4247REX        an I record defines B record extensions
     counter=0
     time=0
     fp = File.open(file, "r")
 
     # get I record
-    b_extensions_struc=[:start,:finish,:mnemonic]
-    b_extensions = []
     b_extensions2 = Hash.new
     fp.each_line do |line|
       a=line.unpack('a1a2a7a7a7a7a7a7a7') # hopefully enough
@@ -84,9 +81,7 @@ class Import
         if not a[1].nil?
           0.upto(a[1].to_i){|n|
             b=a[n+2].unpack('a2a2a3')
-            b_extensions << [b[0],b[1],b[2]]
-            #b_extensions2 << [:start => a[0], :finnish => b[1], :mnemonic => b[2]]
-            b_extensions2[b[2]]=[:start => b[0], :finnish => b[1]]
+            b_extensions2[b[2]]={:start => b[0], :finnish => b[1]}
           }
         end
         break
@@ -94,52 +89,49 @@ class Import
       break
     end
 
-    if b_extensions.length == 0
+    if b_extensions2.length == 0
       puts 'No I record'
     end
 
     if b_extensions2['ENL'].nil?
       puts 'No ENL in I record'
     else
-      puts b_extensions2['ENL'].inspect
+      #      puts b_extensions2['ENL'].inspect
     end
 
-
+    #    last_time=0
     fp.each_line do |line|
-# 0(1)=rec, 1(6)=time, 2(8)=lat, 3(9)=lon, 4(1)=validity, 5(5)=baro_alt, 6(5)=gps_alt, 7(3)=fix_accuracy, 8(2)=num_satelites, 9(3)=enl
+      # 0(1)=rec, 1(6)=time, 2(8)=lat, 3(9)=lon, 4(1)=validity, 5(5)=baro_alt, 6(5)=gps_alt
+      # optional see Irec  7(3)=fix_accuracy, 8(2)=num_satelites, 9(3)=enl
 
-      a=line.unpack('a1a6a8a9a1a5a5a3a2a3')
+      a=line.unpack('a1a6a8a9a1a5a5a')
       if a[0].to_s == 'B'
 
         num_recs=num_recs+1
-        #        if time=0
-        #          time=a[1]
+        # time B0915235535648N01340869EA-006900049000
+
+        h,m,s = a[1].scan(%r{(\d{2})(\d{2})(\d{2})}).flatten
+        time = h.to_i * 3600 + m.to_i * 60  + s.to_i
+        #        if last_time==0
+        #          last_time=time
         #        end
 
-        if a[7].nil?
-          a[7]='0'
+        # enl
+        if hv=b_extensions2['ENL']
+          enl=line[hv[:start].to_i..hv[:finnish].to_i]
+        else
+          enl='0'
         end
-        if a[8].nil?
-          a[8]='0'
-        end
-        if a[9].nil?
-          a[9]='0'
-        end
-        #        puts a[2].to_s + ' - ' + a[4].to_s
-        #        STDOUT.flush
-        #        @@objects << [ a[2].to_s,a[3].to_s,a[5],a[6],a[9]]
-        @@objects << [ a[2],a[3],a[5].to_i,a[6].to_i,a[9].to_i]
 
-        if a[9].to_i>0
-#          puts a[9]
-        end
+        @@objects << [ a[2],a[3],a[5].to_i,a[6].to_i,enl.to_i, time]
+
+        # last_time=time
       end
-
     end
 
-    #    Igcpoint.import objects
-    #    Igcpoint.import  objects
-    Igcpoint.import columns, @@objects
+#      igcfile = Igcfile.new()
+
+    Igcfile.Igcpoint.import columns, @@objects
 
     fp.close
     num_recs
@@ -169,3 +161,5 @@ import.import_igcfiles()
 #db.execute("update SPAMSTATS set spam = ?, good = ? where phrase = ' '", spam, good)
 #newspam, newgood = db.get_first_row("select spam, good from SPAMSTATS where phrase = ' '")
 #assert_equal(spam, newspam)
+
+#http://community.activestate.com/product/komodo?page=3        gmaps example
