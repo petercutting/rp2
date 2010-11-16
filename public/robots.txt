@@ -3,3 +3,7 @@
 # To ban all spiders from the entire site uncomment the next two lines:
 # User-Agent: *
 # Disallow: /
+074C3X62.IGC 1465 208
+075C3X61.IGC 1894 161
+077C3X62.IGC 2997 108
+078C3X62.IGC 2405 138

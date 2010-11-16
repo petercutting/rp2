@@ -48,7 +48,7 @@ class Import
   # relative X Y movement ENL curveing
   def import_a_igcfile(file)
 
-    columns = [ :lat, :lon, :baro_alt, :gps_alt, :enl, :seq_secs]
+    columns = [ :lat_lon, :baro_alt, :gps_alt, :enl, :seq_secs, :igcfile_id, :flat, :flon]
 
     @@objects.clear
     num_recs=1 # to prevent divide by zero
@@ -66,10 +66,11 @@ class Import
     counter=0
     time=0
     fp = File.open(file, "r")
+    contents = fp.read
 
     # get I record
     b_extensions2 = Hash.new
-    fp.each_line do |line|
+    contents.each_line do |line|
       a=line.unpack('a1a2a7a7a7a7a7a7a7') # hopefully enough
       if a[0]=='A'
         next
@@ -100,7 +101,7 @@ class Import
     end
 
     #    last_time=0
-    fp.each_line do |line|
+    contents.each_line do |line|
       # 0(1)=rec, 1(6)=time, 2(8)=lat, 3(9)=lon, 4(1)=validity, 5(5)=baro_alt, 6(5)=gps_alt
       # optional see Irec  7(3)=fix_accuracy, 8(2)=num_satelites, 9(3)=enl
 
@@ -108,8 +109,8 @@ class Import
       if a[0].to_s == 'B'
 
         num_recs=num_recs+1
-        # time B0915235535648N01340869EA-006900049000
 
+        # time B0915235535648N01340869EA-006900049000
         h,m,s = a[1].scan(%r{(\d{2})(\d{2})(\d{2})}).flatten
         time = h.to_i * 3600 + m.to_i * 60  + s.to_i
         #        if last_time==0
@@ -122,16 +123,26 @@ class Import
         else
           enl='0'
         end
+        #Latitude        8 bytes           DDMMMMMN         Valid characters N, S, 0-9
+        #Longitude       9 bytes           DDDMMMMME        Valid characters E,W, 0-9
+        #Lat/Long - D D M Mm m m N D D D M M m m m E
+        dd,mm,mmm,ns = a[2].scan(%r{(\d{2})(\d{2})(\d{3})(\w{1})}).flatten
+        #puts dd +' ' + mm + ' ' + mmm + ' ' + ns
+        #puts dd + ' ' + (mm.to_i/60 + ' ' + (mmm.to_i/1000)/60 + ' ' + ns
+        flat = dd.to_f + mm.to_f/60 + (mmm.to_f/1000)/60
+        flat = - flat unless ns=='N'
 
-        @@objects << [ a[2],a[3],a[5].to_i,a[6].to_i,enl.to_i, time]
+        ddd,mm,mmm,ew = a[3].scan(%r{(\d{3})(\d{2})(\d{3})(\w{1})}).flatten
+        flon = ddd.to_f + mm.to_f/60 + (mmm.to_f/1000)/60
+        flon = - flon unless ew=='E'
+
+        @@objects << [ a[2]+','+a[3],a[5].to_i,a[6].to_i,enl.to_i, time, igcfile.id,flat,flon]
 
         # last_time=time
       end
     end
 
-#      igcfile = Igcfile.new()
-
-    Igcfile.Igcpoint.import columns, @@objects
+    Igcpoint.import columns, @@objects
 
     fp.close
     num_recs
