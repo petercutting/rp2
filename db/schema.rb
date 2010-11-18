@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20101116204624) do
+ActiveRecord::Schema.define(:version => 20101118095302) do
 
   create_table "igcfiles", :force => true do |t|
     t.string   "filename"
@@ -32,6 +32,8 @@ ActiveRecord::Schema.define(:version => 20101116204624) do
     t.float    "flat"
     t.float    "flon"
     t.string   "lat_lon",    :limit => 20
+    t.integer  "x"
+    t.integer  "y"
   end
 
   add_index "igcpoints", ["igcfile_id", "seq_secs"], :name => "index_igcpoints_on_igcfile_id_and_seq_secs"

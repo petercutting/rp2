@@ -9,7 +9,7 @@ require 'ar-extensions/import/sqlite'
 # rake task?
 
 RAD_PER_DEG = 0.017453293  #  PI/180
-Rmeters = 6371 * 1000
+RADIUS = 6371 * 1000
 
 class Import
   @objects = Array.new
@@ -50,7 +50,9 @@ class Import
   # relative X Y movement ENL curveing
   def import_a_igcfile(file)
 
-    columns = [ :lat_lon, :baro_alt, :gps_alt, :enl, :seq_secs, :igcfile_id, :flat, :flon]
+    columns = [ :lat_lon, :baro_alt, :gps_alt, :enl, :seq_secs, :igcfile_id, :flat, :flon,:x,:y]
+
+    sma=[]
 
     @objects = []
     num_recs=1 # to prevent divide by zero
@@ -138,7 +140,25 @@ class Import
         flon = (ddd.to_f + mm.to_f/60 + (mmm.to_f/1000)/60)*RAD_PER_DEG
         flon = - flon unless ew=='E'
 
-        @objects << [ a[2]+','+a[3],a[5].to_i,a[6].to_i,enl.to_i, time, igcfile.id,flat,flon]
+        # cartesian
+        x = RADIUS * Math.cos(flat) * Math.cos(flon)
+        y = RADIUS * Math.cos(flat) * Math.sin(flon)
+
+        sma << [x.to_i,y.to_i]
+        sma.shift unless sma.length < 5
+
+        xa=0
+        ya=0
+        sma.each{|e|
+          xa=xa+e[0]
+          ya=ya+e[1]
+        }
+        if sma.length>1
+          x=xa/sma.length
+          y=ya/sma.length
+        end
+
+        @objects << [ a[2]+','+a[3],a[5].to_i,a[6].to_i,enl.to_i, time, igcfile.id,flat,flon,x.to_i,y.to_i]
 
         # last_time=time
       end
@@ -157,15 +177,15 @@ class Import
     num_recs
   end
 
-#http://www.chem.uoa.gr/applets/appletsmooth/appl_smooth2.html
-#Savitzky-Golay
-#My next fallback would be least squares fit. A Kalman filter will smooth the data taking velocities into account,
-#whereas a least squares fit approach will just use positional information. Still, it is definitely simpler to implement
-#and understand. It looks like the GNU Scientific Library may have an implementation of this.
+  #http://www.chem.uoa.gr/applets/appletsmooth/appl_smooth2.html
+  #Savitzky-Golay
+  #My next fallback would be least squares fit. A Kalman filter will smooth the data taking velocities into account,
+  #whereas a least squares fit approach will just use positional information. Still, it is definitely simpler to implement
+  #and understand. It looks like the GNU Scientific Library may have an implementation of this.
 
-#Another algorithm to consider is the Ramer-Douglas-Peucker line simplification algorithm,
-#it is quite commonly used in the simplification of GPS data.
-#(http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm)
+  #Another algorithm to consider is the Ramer-Douglas-Peucker line simplification algorithm,
+  #it is quite commonly used in the simplification of GPS data.
+  #(http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm)
   #
   #  sql = <<SQL
   #
@@ -179,30 +199,30 @@ class Import
 end
 #my $x = cos($lat) * cos($lon); my $y = cos($lat) * sin($lon)
 
- def haversine_distance( lat1, lon1, lat2, lon2 )
+def haversine_distance( lat1, lon1, lat2, lon2 )
 
-   dlon = lon2 - lon1
-   dlat = lat2 - lat1
+  dlon = lon2 - lon1
+  dlat = lat2 - lat1
 
-   dlon_rad = dlon * RAD_PER_DEG
-   dlat_rad = dlat * RAD_PER_DEG
+  dlon_rad = dlon * RAD_PER_DEG
+  dlat_rad = dlat * RAD_PER_DEG
 
-   lat1_rad = lat1 * RAD_PER_DEG
-   lon1_rad = lon1 * RAD_PER_DEG
+  lat1_rad = lat1 * RAD_PER_DEG
+  lon1_rad = lon1 * RAD_PER_DEG
 
-   lat2_rad = lat2 * RAD_PER_DEG
-   lon2_rad = lon2 * RAD_PER_DEG
+  lat2_rad = lat2 * RAD_PER_DEG
+  lon2_rad = lon2 * RAD_PER_DEG
 
-   # puts "dlon: #{dlon}, dlon_rad: #{dlon_rad}, dlat: #{dlat}, dlat_rad: #{dlat_rad}"
+  # puts "dlon: #{dlon}, dlon_rad: #{dlon_rad}, dlat: #{dlat}, dlat_rad: #{dlat_rad}"
 
-   a = Math.sin((lat2 - lat1)/2)**2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin((lon2 - lon1)/2)**2
-   #a = Math.sin(dlat_rad/2)**2 + Math.cos(lat1_rad) * Math.cos(lat2_rad) * Math.sin(dlon_rad/2)**2
-   c = 2 * Math.asin( Math.sqrt(a))
+  a = Math.sin((lat2 - lat1)/2)**2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin((lon2 - lon1)/2)**2
+  #a = Math.sin(dlat_rad/2)**2 + Math.cos(lat1_rad) * Math.cos(lat2_rad) * Math.sin(dlon_rad/2)**2
+  c = 2 * Math.asin( Math.sqrt(a))
 
- Rmeters * c     # delta in meters
+  Rmeters * c     # delta in meters
 
-   @distances["m"] = dMeters
- end
+  @distances["m"] = dMeters
+end
 
 
 puts "Starting..."
