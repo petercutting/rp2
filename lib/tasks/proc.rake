@@ -18,19 +18,20 @@ task :proc, [:dummy] => :environment do |t, args|
 
     def process_igc()
       num_recs=0
-    #columns = [ :lat_lon, :baro_alt, :gps_alt, :enl, :seq_secs, :igcfile_id, :flat, :flon,:x,:y]
-    columns = [ :id,:x]
+      #columns = [ :lat_lon, :baro_alt, :gps_alt, :enl, :seq_secs, :igcfile_id, :flat, :flon,:x,:y]
+      @options = {:validate => false, :on_duplicate_key_update => [:x]}
+
+      columns = [ :id,:x]
 
       igcfs = Igcfile.find(:all)
 
       igcfs.each do |igcf|
         # puts igcf.filename
-        p=[]
+        @p=[]
         igcps = igcf.igcpoint(:all, :order => 'seq_secs')
         igcps.each do |igcp|
-          p<<[igcp.id,igcp.x]
-          #p<<[99999999,0]
-          Igcpoint.import columns, p,:on_duplicate_key_update=>{ :x => :x }
+          @p<<[igcp.id,igcp.x]
+          Igcpoint.import columns, @p, @options
           #Igcpoint.import columns, p
         end
 
