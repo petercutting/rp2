@@ -6,7 +6,7 @@ xml.Document {
   xml.open(1)
   xml.visible(1)
   xml.NetworkLink {
-    xml.name("My rails app  being passed parameters")
+    xml.name("My rails app being passed parameters")
     xml.open(1)
     xml.visibility(0)
     xml.Link {

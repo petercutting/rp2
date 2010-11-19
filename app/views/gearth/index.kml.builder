@@ -32,9 +32,9 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
       }
       xml.LineString {
         xml.coordinates(
-          @ps.each { |p|
-        	"#{p[1]},  #{p[1]}  "
-        	      }
+          @ps.each{ |p|
+            "#{p}"
+          }
         )
       }
     }

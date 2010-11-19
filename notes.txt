@@ -11,7 +11,10 @@ The formula for back conversion:
    lon = atan2(y, x)
 
 http://rails.nomad-labs.com/?p=15
-
+        	"#{p[0]},#{p[1]}"
+          @ps.each{ |p|
+        	"HELLO"
+        	}
 Widget.import columns, values, :on_duplicate_key_update => [:price]
 
 http://www.slideshare.net/sabman/rails-gis-hacks-presentation-170907

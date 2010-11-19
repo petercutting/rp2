@@ -1,6 +1,6 @@
 class GearthController < ApplicationController
   def index
-    #puts 'index ' + params[:CENTRE].inspect
+    puts 'index ' + params[:CENTRE].inspect
     @centre=["0","0"]
     @bbox=["0","0","0","0"]
     @centre = params[:CENTRE].split(",") unless params[:CENTRE].nil?
@@ -12,7 +12,8 @@ class GearthController < ApplicationController
     igcfs.each do |igcf|    # for each file
       igcps = igcf.igcpoint(:all, :order => 'seq_secs')   # get points
       igcps.each do |igcp|          # for each point
-        @ps<<[igcp.dlat.to_s,igcp.dlon.to_s]         # push data to array
+        @ps<<[igcp.dlon.to_s + ',' + igcp.dlat.to_s + "\n"]         # push data to array
+        #@ps<<[igcp.dlat.to_s,igcp.dlon.to_s]         # push data to array
         #puts [igcp.dlat.to_s,igcp.dlon.to_s].inspect
       end
     end
