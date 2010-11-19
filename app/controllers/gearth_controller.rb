@@ -12,7 +12,7 @@ class GearthController < ApplicationController
     igcfs.each do |igcf|    # for each file
       igcps = igcf.igcpoint(:all, :order => 'seq_secs')   # get points
       igcps.each do |igcp|          # for each point
-        @ps<<[igcp.dlon.to_s + ',' + igcp.dlat.to_s + "\n"]         # push data to array
+        @ps<<[igcp.dlon.to_s + ',' + igcp.dlat.to_s + ',' + igcp.baro_alt.to_s + "\n"]         # push data to array
         #@ps<<[igcp.dlat.to_s,igcp.dlon.to_s]         # push data to array
         #puts [igcp.dlat.to_s,igcp.dlon.to_s].inspect
       end

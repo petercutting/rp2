@@ -31,6 +31,8 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
         }
       }
       xml.LineString {
+        xml.extrude("1")
+        xml.altitudeMode("absolute")
         xml.coordinates(
           @ps.each{ |p|
             "#{p}"
