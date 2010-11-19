@@ -30,8 +30,12 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
           }
         }
       }
-      xml.Point {
-        xml.coordinates("#{@centre[0]}, #{@centre[1]}");
+      xml.LineString {
+        xml.coordinates(
+          @ps.each { |p|
+        	"#{p[1]},  #{p[1]}  "
+        	      }
+        )
       }
     }
   }
