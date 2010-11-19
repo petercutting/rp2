@@ -19,22 +19,17 @@ task :proc, [:dummy] => :environment do |t, args|
     def process_igc()
       num_recs=0
       #columns = [ :lat_lon, :baro_alt, :gps_alt, :enl, :seq_secs, :igcfile_id, :flat, :flon,:x,:y]
-      @options = {:validate => false, :on_duplicate_key_update => [:x]}
-
+      #options = {:validate => false, :on_duplicate_key_update => [:x]}
+      options = { :on_duplicate_key_update => [:x]}
       columns = [ :id,:x]
-
-      igcfs = Igcfile.find(:all)
-
-      igcfs.each do |igcf|
-        # puts igcf.filename
-        @p=[]
-        igcps = igcf.igcpoint(:all, :order => 'seq_secs')
-        igcps.each do |igcp|
-          @p<<[igcp.id,igcp.x]
-          Igcpoint.import columns, @p, @options
-          #Igcpoint.import columns, p
+      igcfs = Igcfile.find(:all)  # get files
+      igcfs.each do |igcf|    # for each file
+        ps=[]
+        igcps = igcf.igcpoint(:all, :order => 'seq_secs')   # get points
+        igcps.each do |igcp|          # for each point
+          ps<<[igcp.id,igcp.x]         # push data to array
         end
-
+        Igcpoint.import(columns, ps, options)   # update DB
       end
 
       #      @files = Dir.entries(dir)
