@@ -149,29 +149,15 @@ task :ligc, [:dir] => :environment do |t, args|
           x = RADIUS * Math.cos(rlat) * Math.cos(rlon)
           y = RADIUS * Math.cos(rlat) * Math.sin(rlon)
 
-          sma << [x.to_i,y.to_i]
-          sma.shift unless sma.length < 5
-
-          xa=0
-          ya=0
-          sma.each{|e|
-            xa=xa+e[0]
-            ya=ya+e[1]
-          }
-          if sma.length>1
-            x=xa/sma.length
-            y=ya/sma.length
-          end
-
-          @objects << [ a[2]+','+a[3],a[5].to_i,a[6].to_i,enl.to_i, time, igcfile.id,rlat,rlon,x.to_i,y.to_i]
+          objects << [ a[2]+','+a[3],a[5].to_i,a[6].to_i,enl.to_i, time, igcfile.id,rlat,rlon,x.to_i,y.to_i]
 
           # last_time=time
 
           # the import bogs down if there are too many records so chop it up
           counter=counter+1
           if counter > 100
-            Igcpoint.import(columns, @objects, options)
-            @objects=[]
+            Igcpoint.import(columns, objects, options)
+            objects=[]
             counter=0
           end
         end
@@ -181,7 +167,7 @@ task :ligc, [:dir] => :environment do |t, args|
 #time 6
 #date 6
 
-      Igcpoint.import(columns, @objects, options) unless @objects.length==0
+      Igcpoint.import(columns, objects, options) unless objects.length==0
 
       secs =  Time.now - start
       puts file.to_s + ' ' + num_recs.to_s + ' ' + (num_recs/secs).to_i.to_s

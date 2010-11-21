@@ -23,7 +23,7 @@ task :proc, [:dummy] => :environment do |t, args|
       #columns = [ :lat_lon, :baro_alt, :gps_alt, :enl, :seq_secs, :igcfile_id, :flat, :flon,:x,:y]
       #options = {:validate => false, :on_duplicate_key_update => [:x]}
       options = { :validate => false, :on_duplicate_key_update => [:x]}
-      columns = [ :igcfile_id, :seq_secs, :x]
+      columns = [ :igcfile_id, :seq_secs, :x, :y]
       igcfs = Igcfile.find(:all)  # get files
       igcfs.each do |igcf|    # for each file
         #puts igcf.filename
@@ -34,11 +34,26 @@ task :proc, [:dummy] => :environment do |t, args|
         igcps = igcf.igcpoint(:all, :order => 'seq_secs')   # get points
         igcps.each do |igcp|          # for each point
           num_recs=num_recs+1
-          objects << [igcp.igcfile_id, igcp.seq_secs, igcp.x]         # push data to array
+
+#          sma << [x.to_i,y.to_i]
+#          sma.shift unless sma.length < 5
+#
+#          xa=0
+#          ya=0
+#          sma.each{|e|
+#            xa=xa+e[0]
+#            ya=ya+e[1]
+#          }
+#          if sma.length>1
+#            x=xa/sma.length
+#            y=ya/sma.length
+#          end
+
+          objects << [igcp.igcfile_id, igcp.seq_secs, igcp.x.to_i,igcp.y.to_i]         # push data to array
           ##puts [igcp.igcfile_id, igcp.seq_secs, igcp.x].inspect
 
           counter=counter+1
-          if counter >=150
+          if counter >=1000
             Igcpoint.import(columns, objects, options)
             objects=[]
             counter=0
