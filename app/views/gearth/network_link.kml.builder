@@ -9,6 +9,7 @@ xml.Document {
     xml.name("My rails app being passed parameters")
     xml.open(1)
     xml.visibility(0)
+    xml.flyToView(0)
     xml.Link {
       xml.href("#{server}")
       xml.viewRefreshMode("onStop")

@@ -18,18 +18,38 @@ task :proc, [:dummy] => :environment do |t, args|
 
     def process_igc()
       num_recs=0
+      counter=0
+
       #columns = [ :lat_lon, :baro_alt, :gps_alt, :enl, :seq_secs, :igcfile_id, :flat, :flon,:x,:y]
       #options = {:validate => false, :on_duplicate_key_update => [:x]}
       options = { :on_duplicate_key_update => [:x]}
-      columns = [ :id,:x]
+      columns = [ :igcfile_id, :seq_secs, :x]
       igcfs = Igcfile.find(:all)  # get files
       igcfs.each do |igcf|    # for each file
-        ps=[]
+        #puts igcf.filename
+        start = Time.now
+        objects=[]
+        num_recs=1 # to prevent divide by zero
+
         igcps = igcf.igcpoint(:all, :order => 'seq_secs')   # get points
         igcps.each do |igcp|          # for each point
-          ps<<[igcp.id,igcp.x]         # push data to array
+          num_recs=num_recs+1
+          objects << [igcp.igcfile_id, igcp.seq_secs, igcp.x]         # push data to array
+          puts [igcp.igcfile_id, igcp.seq_secs, igcp.x].inspect
+
+          counter=counter+1
+          if counter >=1
+            Igcpoint.import(columns, objects, options)
+            objects=[]
+            counter=0
+          end
         end
-        Igcpoint.import(columns, ps, options)   # update DB
+        Igcpoint.import(columns, objects, options) unless objects.length==0  # update DB
+
+        secs =  Time.now - start
+        puts igcf.filename + ' ' + num_recs.to_s + ' ' + (num_recs/secs).to_i.to_s
+        STDOUT.flush
+
       end
 
       #      @files = Dir.entries(dir)

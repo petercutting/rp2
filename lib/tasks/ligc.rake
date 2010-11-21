@@ -54,7 +54,7 @@ task :ligc, [:dir] => :environment do |t, args|
     # relative X Y movement ENL curveing
     def import_a_igcfile(file)
 
-      columns = [ :lat_lon, :baro_alt, :gps_alt, :enl, :seq_secs, :igcfile_id, :flat, :flon, :dlat, :dlon, :x, :y]
+      columns = [ :lat_lon, :baro_alt, :gps_alt, :enl, :seq_secs, :igcfile_id, :rlat, :rlon, :x, :y]
       options = { :validate => false }
       line_save=""
 
@@ -136,24 +136,18 @@ task :ligc, [:dir] => :environment do |t, args|
           else
             enl='0'
           end
-          #Latitude        8 bytes           DDMMMMMN         Valid characters N, S, 0-9
-          #Longitude       9 bytes           DDDMMMMME        Valid characters E,W, 0-9
-          #Lat/Long - D D M Mm m m N D D D M M m m m E
-          dd,mm,mmm,ns = a[2].scan(%r{(\d{2})(\d{2})(\d{3})(\w{1})}).flatten
-          #puts dd +' ' + mm + ' ' + mmm + ' ' + ns
-          #puts dd + ' ' + (mm.to_i/60 + ' ' + (mmm.to_i/1000)/60 + ' ' + ns
-          dlat = (dd.to_f + mm.to_f/60 + (mmm.to_f/1000)/60)
-          flat = - flat unless ns=='N'
-          flat = dlat*RAD_PER_DEG
 
-          ddd,mm,mmm,ew = a[3].scan(%r{(\d{3})(\d{2})(\d{3})(\w{1})}).flatten
-          dlon = (ddd.to_f + mm.to_f/60 + (mmm.to_f/1000)/60)
-          flon = - flon unless ew=='E'
-          flon = dlon*RAD_PER_DEG
+          dd,mm,mmm,ns = a[2].scan(%r{(\d{2})(\d{2})(\d{3})(\w{1})}).flatten    #Latitude DDMMMMMN Valid characters N, S, 0-9
+          rlat = ((dd.to_f + mm.to_f/60 + (mmm.to_f/1000)/60))*RAD_PER_DEG
+          rlat = - rlat unless ns=='N'
+
+          ddd,mm,mmm,ew = a[3].scan(%r{(\d{3})(\d{2})(\d{3})(\w{1})}).flatten   #Longitude DDDMMMMME Valid characters E,W, 0-9
+          rlon = ((ddd.to_f + mm.to_f/60 + (mmm.to_f/1000)/60))*RAD_PER_DEG
+          rlon = - rlon unless ew=='E'
 
           # cartesian
-          x = RADIUS * Math.cos(flat) * Math.cos(flon)
-          y = RADIUS * Math.cos(flat) * Math.sin(flon)
+          x = RADIUS * Math.cos(rlat) * Math.cos(rlon)
+          y = RADIUS * Math.cos(rlat) * Math.sin(rlon)
 
           sma << [x.to_i,y.to_i]
           sma.shift unless sma.length < 5
@@ -169,7 +163,7 @@ task :ligc, [:dir] => :environment do |t, args|
             y=ya/sma.length
           end
 
-          @objects << [ a[2]+','+a[3],a[5].to_i,a[6].to_i,enl.to_i, time, igcfile.id,flat,flon,dlat,dlon,x.to_i,y.to_i]
+          @objects << [ a[2]+','+a[3],a[5].to_i,a[6].to_i,enl.to_i, time, igcfile.id,rlat,rlon,x.to_i,y.to_i]
 
           # last_time=time
 
@@ -182,6 +176,10 @@ task :ligc, [:dir] => :environment do |t, args|
           end
         end
       end
+
+#logger 6
+#time 6
+#date 6
 
       Igcpoint.import(columns, @objects, options) unless @objects.length==0
 
