@@ -4,7 +4,7 @@ task :ligc, [:dir] => :environment do |t, args|
   args.with_defaults(:dir => "public/data")
 
   require 'ar-extensions'
-  require 'ar-extensions/import/sqlite'
+  require 'ar-extensions/import/mysql'
 
   #gem install activerecord-import -v 0.2.0
   # rake task?
