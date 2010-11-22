@@ -1,6 +1,6 @@
 desc "Loads IGC files from specified directory (or .)"
 
-task :ligc, [:dir] => :environment do |t, args|
+task :ligc2, [:dir] => :environment do |t, args|
   args.with_defaults(:dir => "public/data")
 
   require 'ar-extensions'
@@ -11,6 +11,8 @@ task :ligc, [:dir] => :environment do |t, args|
 
   RAD_PER_DEG = 0.017453293  #  PI/180
   RADIUS = 6371 * 1000
+  GRAV_CONST = 9.81
+  GLIDER_MASS = 450
 
   puts File.dirname(__FILE__)
   #  @dir="#{args.dir}"
@@ -149,26 +151,81 @@ task :ligc, [:dir] => :environment do |t, args|
           x = RADIUS * Math.cos(rlat) * Math.cos(rlon)
           y = RADIUS * Math.cos(rlat) * Math.sin(rlon)
 
-          objects << [ a[2]+','+a[3],a[5].to_i,a[6].to_i,enl.to_i, time, igcfile.id,rlat,rlon,x.to_i,y.to_i]
+          #columns = [ :lat_lon, :baro_alt, :gps_alt, :enl, :seq_secs, :igcfile_id, :rlat, :rlon, :x, :y]
+          #objects << [ a[2]+','+a[3],a[5].to_i,a[6].to_i,enl.to_i, time, igcfile.id,rlat,rlon,x.to_i,y.to_i]
+          obj = { :lat_lon => a[2]+','+a[3],:baro_alt => a[5].to_i, :gps_alt => a[6].to_i,
+            :enl => enl.to_i, :seq_secs=> time, :igcfile_id => igcfile.id, :rlat => rlat, :rlon=>rlon,
+            :x => x.to_i, :y=> y.to_i}
 
-          # last_time=time
+          #speed
+          obj[:ms]=0
+          objects.reverse_each {|item|
+            obj[:ms] = (((obj[:x] - item[:x])**2 + (obj[:y] - item[:y])**2)**0.5)/(obj[:seq_secs] - item[:seq_secs]).to_i
+            break
+          }
+
+          #energy
+          potential = GLIDER_MASS * GRAV_CONST * obj[:baro_alt]   # mass is a guess
+          kinetic = 0.5 * GLIDER_MASS * (obj[:ms])**2             # should compensate speed for wind here
+          obj[:te]= potential + kinetic
+
+          #moving average speed in 2 dimnsions
+          max=0
+          may=0
+          avg_cnt=0
+          objects.reverse_each {|item|
+            break if item[:seq_secs] > obj[:seq_secs]-40
+            avg_cnt+=1
+            max=max+item[:x]
+            may=may+item[:y]
+          }
+
+          if avg_cnt > 0
+            obj[:max]=(max/avg_cnt).to_i
+            obj[:may]=(may/avg_cnt).to_i
+            obj[:mams] = (((obj[:max] - item[:max])**2 + (obj[:may] - item[:may])**2)**0.5)/(obj[:seq_secs] -item[:seq_secs]).to_i
+          else
+            obj[:mams]=0
+            #obj[:max]=obj[:x]
+            #obj[:may]=obj[:y]
+          end
+
+          ###########
+          objects << obj
 
           # the import bogs down if there are too many records so chop it up
           counter=counter+1
-          if counter > 100
-            Igcpoint.import(columns, objects, options)
-            objects=[]
-            counter=0
-          end
+          #          if counter > 100
+          #            Igcpoint.import(columns, objects, options)
+          #            objects=[]
+          #            counter=0
+          #          end
         end
       end
 
-#logger 6
-#time 6
-#date 6
+      objects.each_with_index do |object,index|
+          avg_cnt=0
+          objects[0..index].reverse_each {|item|
+            break if item[:seq_secs] > object[:seq_secs]-40
+            avg_cnt+=1
+#            max=max+item[:x]
+#            may=may+item[:y]
+          }
 
-      Igcpoint.import(columns, objects, options) unless objects.length==0
+#          if avg_cnt > 0
+#            obj[:max]=(max/avg_cnt).to_i
+#            obj[:may]=(may/avg_cnt).to_i
+#            obj[:mams] = (((obj[:max] - item[:max])**2 + (obj[:may] - item[:may])**2)**0.5)/(obj[:seq_secs] -item[:seq_secs]).to_i
+#          else
+#            obj[:mams]=0
+#            #obj[:max]=obj[:x]
+#            #obj[:may]=obj[:y]
+#          end
 
+      end
+
+
+      #Igcpoint.import(columns, objects, options) unless objects.length==0
       secs =  Time.now - start
       puts file.to_s + ' ' + num_recs.to_s + ' ' + (num_recs/secs).to_i.to_s
       STDOUT.flush

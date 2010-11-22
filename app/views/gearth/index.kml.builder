@@ -14,7 +14,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
       xml.Snippet(:maxLines => "9") {
         xml.cdata!(text)
       }
-      xml.name("cross-hair")
+      xml.name("cross-hair2")
       xml.Style {
         xml.LabelStyle {
           xml.scale(0)
@@ -31,6 +31,8 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
         }
       }
       xml.LineString {
+            xml.name("IGC data")
+
         xml.extrude("1")
         xml.altitudeMode("absolute")
         xml.coordinates(
