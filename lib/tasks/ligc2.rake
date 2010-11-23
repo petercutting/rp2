@@ -14,6 +14,13 @@ task :ligc2, [:dir] => :environment do |t, args|
   GRAV_CONST = 9.81
   GLIDER_MASS = 450
 
+#http://users.ox.ac.uk/~gliding/docs/Polar%20Comparison%20Chart.xls
+# LS4 40KG/m2
+  polar_sink_ms = [0.80,0.71,0.69,0.69,0.69,0.72,0.75,0.79,0.86,0.91,0.98,1.05,1.12,1.20,1.29,1.38,1.49,1.62,1.76,1.91,2.08,2.27,2.48,2.69]
+  polar_kmh = [80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195]
+  polar_ms = polar_kmh.collect{|x| eval(sprintf("%2.1f",x/3.6))}
+
+
   puts File.dirname(__FILE__)
   #  @dir="#{args.dir}"
   #  puts @dir
@@ -202,25 +209,30 @@ task :ligc2, [:dir] => :environment do |t, args|
           #          end
         end
       end
+      polar_kmh = [80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195]
+
+      #polar_sink_ms = [0.80,0.71,0.69,0.69,0.69,0.72,0.75,0.79,0.86,0.91,0.98,1.05,1.12,1.20,1.29,1.38,1.49,1.62,1.76,1.91,2.08,2.27,2.48,2.69]
 
       objects.each_with_index do |object,index|
-          avg_cnt=0
-          objects[0..index].reverse_each {|item|
-            break if item[:seq_secs] > object[:seq_secs]-40
-            avg_cnt+=1
-#            max=max+item[:x]
-#            may=may+item[:y]
-          }
+        #de = object[:te] - save_obj[:te] unless save_obj.nil?
+        #save_obj=object
+        avg_cnt=0
+        objects[0..index].reverse_each {|item|
+          break if item[:seq_secs] > object[:seq_secs]-40
+          avg_cnt+=1
+          #            max=max+item[:x]
+          #            may=may+item[:y]
+        }
 
-#          if avg_cnt > 0
-#            obj[:max]=(max/avg_cnt).to_i
-#            obj[:may]=(may/avg_cnt).to_i
-#            obj[:mams] = (((obj[:max] - item[:max])**2 + (obj[:may] - item[:may])**2)**0.5)/(obj[:seq_secs] -item[:seq_secs]).to_i
-#          else
-#            obj[:mams]=0
-#            #obj[:max]=obj[:x]
-#            #obj[:may]=obj[:y]
-#          end
+        #          if avg_cnt > 0
+        #            obj[:max]=(max/avg_cnt).to_i
+        #            obj[:may]=(may/avg_cnt).to_i
+        #            obj[:mams] = (((obj[:max] - item[:max])**2 + (obj[:may] - item[:may])**2)**0.5)/(obj[:seq_secs] -item[:seq_secs]).to_i
+        #          else
+        #            obj[:mams]=0
+        #            #obj[:max]=obj[:x]
+        #            #obj[:may]=obj[:y]
+        #          end
 
       end
 
@@ -287,3 +299,7 @@ task :ligc2, [:dir] => :environment do |t, args|
   import.import_igcfiles("#{args.dir}")
 
 end
+
+#[1, 2, 3, 4].inject(0) { |result, element| result + element } # => 10
+
+#[1, 2, 3, 4, 5, 6].select { |element| element % 2 == 0 }.collect { |element| element.to_s } # => ["2", "4", "6"]
