@@ -32,7 +32,7 @@ task :ligc2, [:dir] => :environment do |t, args|
   #  puts @dir
 
   class Import
-    #objects = Array.new
+    objects = Array.new
     Polar_sink = Array.new
 
     def interpolate_polar
@@ -195,13 +195,14 @@ task :ligc2, [:dir] => :environment do |t, args|
             obj[:ms] = (((obj[:x] - item[:x])**2 + (obj[:y] - item[:y])**2)**0.5)/(obj[:seq_secs] - item[:seq_secs]).to_i
             break
           }
+          #obj[:ms]=200
 
-          #moving average speed in 2 dimnsions
+          #moving average speed in 2 dimnsions. could be moved out of this loop
           max=0
           may=0
           avg_cnt=0
           objects.reverse_each {|item|
-            break if item[:seq_secs] > obj[:seq_secs]-40
+            break if item[:seq_secs] < obj[:seq_secs]-40
             avg_cnt+=1
             max=max+item[:x]
             may=may+item[:y]
@@ -210,33 +211,26 @@ task :ligc2, [:dir] => :environment do |t, args|
           if avg_cnt > 0
             obj[:max]=(max/avg_cnt).to_i
             obj[:may]=(may/avg_cnt).to_i
-            obj[:mams] = (((obj[:max] - item[:max])**2 + (obj[:may] - item[:may])**2)**0.5)/(obj[:seq_secs] -item[:seq_secs]).to_i
           else
-            obj[:mams]=0
-            #obj[:max]=obj[:x]
-            #obj[:may]=obj[:y]
+            obj[:max]=obj[:x]
+            obj[:may]=obj[:y]
           end
-
-          # energy change
-          obj[:pe] = GLIDER_MASS * GRAV_CONST * obj[:baro_alt]   # mass is a guess
-          obj[:ke] = 0.5 * GLIDER_MASS * (obj[:ms])**2             # should compensate speed for wind component here
-          obj[:te]= obj[:pe] + obj[:ke]
-          ##obj[:dedt]=((obj[:pe] - save_obj[:pe]) + (obj[:ke] - save_obj[:ke])) / (obj[:seq_secs] - save_obj[:seq_secs])
 
           save_obj=obj if save_obj.nil?
 
-          obj[:dedt]=((obj[:te] - save_obj[:te]) + (obj[:te] - save_obj[:te])) / (obj[:seq_secs] - save_obj[:seq_secs])
+            obj[:mams] = 44   #(((obj[:max] - save_obj[:max])**2 + (obj[:may] - save_obj[:may])**2)**0.5)/(obj[:seq_secs] - save_obj[:seq_secs]).to_i
+            #obj[:mams]=0
+
+          # energy change
+          obj[:pe] = GLIDER_MASS * GRAV_CONST * (obj[:baro_alt] )
+          #obj[:pe] = GLIDER_MASS * GRAV_CONST * (obj[:baro_alt] + Polar_sink[obj[:ms]] * (obj[:seq_secs] - save_obj[:seq_secs]))
+          obj[:ke] = 0.5 * GLIDER_MASS * (obj[:ms])**2             # should compensate speed for wind component here
+          obj[:te]= obj[:ke] + obj[:pe]
+          obj[:dedt]=((obj[:pe] - save_obj[:pe]) + (obj[:ke] - save_obj[:ke])) / (obj[:seq_secs] - save_obj[:seq_secs])
 
           objects << obj
-          save_obj=obj
 
-          # the import bogs down if there are too many records so chop it up
-          counter=counter+1
-          #          if counter > 100
-          #            Igcpoint.import(columns, objects, options)
-          #            objects=[]
-          #            counter=0
-          #          end
+          save_obj=obj
         end
       end
 
@@ -265,11 +259,22 @@ task :ligc2, [:dir] => :environment do |t, args|
         #            #obj[:max]=obj[:x]
         #            #obj[:may]=obj[:y]
         #          end
-
+        # the import bogs down if there are too many records so chop it up
+        counter=counter+1
+        #        if counter > 100
+        #          Igcpoint.import(columns, objects, options)
+        #          objects=[]
+        #          counter=0
+        #        end
       end
 
+      ary = []
+      objects.each do |obj|
+        ary << [ obj[:lat_lon], obj[:mams]*1000, obj[:gps_alt], obj[:enl], obj[:seq_secs], obj[:igcfile_id], obj[:rlat], obj[:rlon], obj[:x], obj[:y]]
+        #ary << [ obj[:lat_lon], obj[:baro_alt], obj[:gps_alt], obj[:enl], obj[:seq_secs], obj[:igcfile_id], obj[:rlat], obj[:rlon], obj[:x], obj[:y]]
+      end
 
-      #Igcpoint.import(columns, objects, options) unless objects.length==0
+      Igcpoint.import(columns, ary, options) unless ary.length==0
       secs =  Time.now - start
       puts file.to_s + ' ' + num_recs.to_s + ' ' + (num_recs/secs).to_i.to_s
       STDOUT.flush
@@ -278,27 +283,9 @@ task :ligc2, [:dir] => :environment do |t, args|
       num_recs
     end
 
-    #http://www.chem.uoa.gr/applets/appletsmooth/appl_smooth2.html
-    #Savitzky-Golay
-    #My next fallback would be least squares fit. A Kalman filter will smooth the data taking velocities into account,
-    #whereas a least squares fit approach will just use positional information. Still, it is definitely simpler to implement
-    #and understand. It looks like the GNU Scientific Library may have an implementation of this.
-
-    #Another algorithm to consider is the Ramer-Douglas-Peucker line simplification algorithm,
-    #it is quite commonly used in the simplification of GPS data.
-    #(http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm)
-    #
-    #  sql = <<SQL
-    #
-    #    insert into igcfile values ( 'one' );
-    #
-    #  SQL
-    #
-    #  db.execute_batch( sql )
-    #
 
   end
-  #my $x = cos($lat) * cos($lon); my $y = cos($lat) * sin($lon)
+
 
   def haversine_distance( lat1, lon1, lat2, lon2 )
 
