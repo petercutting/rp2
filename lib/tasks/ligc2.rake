@@ -14,11 +14,17 @@ task :ligc2, [:dir] => :environment do |t, args|
   GRAV_CONST = 9.81
   GLIDER_MASS = 450
 
-#http://users.ox.ac.uk/~gliding/docs/Polar%20Comparison%20Chart.xls
-# LS4 40KG/m2
-  polar_sink_ms = [0.80,0.71,0.69,0.69,0.69,0.72,0.75,0.79,0.86,0.91,0.98,1.05,1.12,1.20,1.29,1.38,1.49,1.62,1.76,1.91,2.08,2.27,2.48,2.69]
-  polar_kmh = [80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195]
-  polar_ms = polar_kmh.collect{|x| eval(sprintf("%2.1f",x/3.6))}
+
+
+  #http://users.ox.ac.uk/~gliding/docs/Polar%20Comparison%20Chart.xls
+  # LS4 40KG/m2
+  #  polar_sink_ms = [0.80,0.71,0.69,0.69,0.69,0.72,0.75,0.79,0.86,0.91,0.98,1.05,1.12,1.20,1.29,1.38,1.49,1.62,1.76,1.91,2.08,2.27,2.48,2.69]
+  #  polar_speed_kmh = [80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195]
+  #  polar_speed_ms = polar_speed_kmh.collect{|x| eval(sprintf("%2.1f",x/3.6))}
+  #  polar_speed_ms2 = polar_speed_kmh.collect{|x| eval(sprintf("%2.0f",x/3.6))}
+  #  #puts polar_speed_ms.inspect
+  #  #puts polar_speed_ms2.inspect
+
 
 
   puts File.dirname(__FILE__)
@@ -26,7 +32,25 @@ task :ligc2, [:dir] => :environment do |t, args|
   #  puts @dir
 
   class Import
-    objects = Array.new
+    #objects = Array.new
+    Polar_sink = Array.new
+
+    def interpolate_polar
+      polar_sink_in_ms = [0.80,0.71,0.69,0.69,0.69,0.72,0.75,0.79,0.86,0.91,0.98,1.05,1.12,1.20,1.29,1.38,1.49,1.62,1.76,1.91,2.08,2.27,2.48,2.69]
+      polar_speed_in_kmh = [80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195]
+      polar_speed_in_ms = polar_speed_in_kmh.collect{|x| eval(sprintf("%2.0f",x/3.6))}
+      #puts polar_speed_in_ms.inspect
+
+      Polar_sink.clear
+
+       (0..80).each {|speed|                                                       # meters per second
+        x = polar_speed_in_ms.find_all{|item| item >= speed }.first
+        x = polar_speed_in_ms.find_all{|item| item <= speed }.last if x.nil?
+        Polar_sink << polar_sink_in_ms[ polar_speed_in_ms.index(x) ]
+      }
+
+      #puts Polar_sink.inspect
+    end
 
     def import_igcfiles(dir)
       num_recs=0
@@ -127,6 +151,7 @@ task :ligc2, [:dir] => :environment do |t, args|
         # optional see Irec  7(3)=fix_accuracy, 8(2)=num_satelites, 9(3)=enl
         line_save=line
 
+
         a=line.unpack('a1a6a8a9a1a5a5a')
         if a[0].to_s == 'B'
 
@@ -171,11 +196,6 @@ task :ligc2, [:dir] => :environment do |t, args|
             break
           }
 
-          #energy
-          potential = GLIDER_MASS * GRAV_CONST * obj[:baro_alt]   # mass is a guess
-          kinetic = 0.5 * GLIDER_MASS * (obj[:ms])**2             # should compensate speed for wind here
-          obj[:te]= potential + kinetic
-
           #moving average speed in 2 dimnsions
           max=0
           may=0
@@ -197,8 +217,18 @@ task :ligc2, [:dir] => :environment do |t, args|
             #obj[:may]=obj[:y]
           end
 
-          ###########
+          # energy change
+          obj[:pe] = GLIDER_MASS * GRAV_CONST * obj[:baro_alt]   # mass is a guess
+          obj[:ke] = 0.5 * GLIDER_MASS * (obj[:ms])**2             # should compensate speed for wind component here
+          obj[:te]= obj[:pe] + obj[:ke]
+          ##obj[:dedt]=((obj[:pe] - save_obj[:pe]) + (obj[:ke] - save_obj[:ke])) / (obj[:seq_secs] - save_obj[:seq_secs])
+
+          save_obj=obj if save_obj.nil?
+
+          obj[:dedt]=((obj[:te] - save_obj[:te]) + (obj[:te] - save_obj[:te])) / (obj[:seq_secs] - save_obj[:seq_secs])
+
           objects << obj
+          save_obj=obj
 
           # the import bogs down if there are too many records so chop it up
           counter=counter+1
@@ -209,17 +239,19 @@ task :ligc2, [:dir] => :environment do |t, args|
           #          end
         end
       end
-      polar_kmh = [80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195]
 
-      #polar_sink_ms = [0.80,0.71,0.69,0.69,0.69,0.72,0.75,0.79,0.86,0.91,0.98,1.05,1.12,1.20,1.29,1.38,1.49,1.62,1.76,1.91,2.08,2.27,2.48,2.69]
-
+      #
       objects.each_with_index do |object,index|
-        #de = object[:te] - save_obj[:te] unless save_obj.nil?
-        #save_obj=object
+
         avg_cnt=0
         objects[0..index].reverse_each {|item|
-          break if item[:seq_secs] > object[:seq_secs]-40
+          break if item[:seq_secs] < object[:seq_secs]-40
           avg_cnt+=1
+
+          #          te = (object[:te] - save_obj[:te]) unless save_obj[:te].nil?
+          #          tt = (object[:seq_secs] - save_obj[:seq_secs]) unless save_obj[:seq_secs].nil?
+          #          dedt = te/tt - ()
+
           #            max=max+item[:x]
           #            may=may+item[:y]
         }
@@ -294,8 +326,14 @@ task :ligc2, [:dir] => :environment do |t, args|
   end
 
 
+
+
+
+
   puts "Starting..."
+
   import = Import.new
+  import.interpolate_polar()
   import.import_igcfiles("#{args.dir}")
 
 end
