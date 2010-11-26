@@ -89,8 +89,7 @@ task :ligc2, [:dir] => :environment do |t, args|
 
       columns = [ :lat_lon, :baro_alt, :gps_alt, :enl, :seq_secs, :igcfile_id, :rlat, :rlon, :x, :y]
       options = { :validate => false }
-      line_save=""
-
+      save_obj=Hash.new
       sma=[]
 
       objects = []
@@ -149,8 +148,6 @@ task :ligc2, [:dir] => :environment do |t, args|
       contents.each_line do |line|
         # 0(1)=rec, 1(6)=time, 2(8)=lat, 3(9)=lon, 4(1)=validity, 5(5)=baro_alt, 6(5)=gps_alt
         # optional see Irec  7(3)=fix_accuracy, 8(2)=num_satelites, 9(3)=enl
-        line_save=line
-
 
         a=line.unpack('a1a6a8a9a1a5a5a')
         if a[0].to_s == 'B'
@@ -180,55 +177,69 @@ task :ligc2, [:dir] => :environment do |t, args|
           rlon = - rlon unless ew=='E'
 
           # cartesian
-          x = RADIUS * Math.cos(rlat) * Math.cos(rlon)
-          y = RADIUS * Math.cos(rlat) * Math.sin(rlon)
+          x = (RADIUS * Math.cos(rlat) * Math.cos(rlon)).to_i
+          y = (RADIUS * Math.cos(rlat) * Math.sin(rlon)).to_i
 
           #columns = [ :lat_lon, :baro_alt, :gps_alt, :enl, :seq_secs, :igcfile_id, :rlat, :rlon, :x, :y]
           #objects << [ a[2]+','+a[3],a[5].to_i,a[6].to_i,enl.to_i, time, igcfile.id,rlat,rlon,x.to_i,y.to_i]
-          obj = { :lat_lon => a[2]+','+a[3],:baro_alt => a[5].to_i, :gps_alt => a[6].to_i,
-            :enl => enl.to_i, :seq_secs=> time, :igcfile_id => igcfile.id, :rlat => rlat, :rlon=>rlon,
-            :x => x.to_i, :y=> y.to_i}
+          obj = { :lat_lon => a[2]+','+a[3], :baro_alt => a[5].to_i, :gps_alt => a[6].to_i,
+            :enl => enl.to_i, :seq_secs => time, :igcfile_id => igcfile.id, :rlat => rlat, :rlon => rlon,
+            :x => x, :y => y}
 
-          #speed
-          obj[:ms]=0
-          objects.reverse_each {|item|
-            obj[:ms] = (((obj[:x] - item[:x])**2 + (obj[:y] - item[:y])**2)**0.5)/(obj[:seq_secs] - item[:seq_secs]).to_i
-            break
-          }
-          #obj[:ms]=200
+          if not save_obj.empty?
+            #puts "one time"
 
-          #moving average speed in 2 dimnsions. could be moved out of this loop
-          max=0
-          may=0
-          avg_cnt=0
-          objects.reverse_each {|item|
-            break if item[:seq_secs] < obj[:seq_secs]-40
-            avg_cnt+=1
-            max=max+item[:x]
-            may=may+item[:y]
-          }
+            #speed
+            obj[:ms] = (((obj[:x] - save_obj[:x])**2 + (obj[:y] - save_obj[:y])**2)**0.5)/(obj[:seq_secs] - save_obj[:seq_secs])
+            #obj[:ms] = (obj[:seq_secs] - save_obj[:seq_secs])
+            #obj[:ms] = (obj[:seq_secs] - save_obj[:seq_secs])
+            #          if obj[:ms] == 0
+            #            puts obj[:ms]
+            #          end
+            # energy change
+            obj[:pe] = GLIDER_MASS * GRAV_CONST * (obj[:baro_alt] )
+            #obj[:pe] = GLIDER_MASS * GRAV_CONST * (obj[:baro_alt] + Polar_sink[obj[:ms]] * (obj[:seq_secs] - save_obj[:seq_secs]))
+            obj[:ke] = 0.5 * GLIDER_MASS * (obj[:ms])**2             # should compensate speed for wind component here
+            #obj[:te]= obj[:ke] + obj[:pe]
+            obj[:dedt]=((obj[:pe] - save_obj[:pe]) + (obj[:ke] - save_obj[:ke])) / (obj[:seq_secs] - save_obj[:seq_secs])
 
-          if avg_cnt > 0
-            obj[:max]=(max/avg_cnt).to_i
-            obj[:may]=(may/avg_cnt).to_i
+
+            #moving average speed in 2 dimnsions. could be moved out of this loop
+            max=0
+            may=0
+            avg_cnt=0
+            objects.reverse_each {|item|
+              break if item[:seq_secs] < obj[:seq_secs]-30
+              avg_cnt+=1
+              max=max+item[:x]
+              may=may+item[:y]
+            }
+
+            if avg_cnt > 0
+              obj[:max]=(max/avg_cnt).to_i
+              obj[:may]=(may/avg_cnt).to_i
+            else
+              obj[:max]=obj[:x]
+              obj[:may]=obj[:y]
+            end
+
+            obj[:mams] = (((obj[:max] - save_obj[:max])**2 + (obj[:may] - save_obj[:may])**2)**0.5)/(obj[:seq_secs] - save_obj[:seq_secs]).to_i
+            #obj[:mams] = (obj[:seq_secs] - save_obj[:seq_secs]) * 100
+            #            if obj[:mams] == 0
+            #              obj[:mams]=10
+            #            else
+            #            end
+            #obj[:mams] = save_obj[:seq_secs]
+            #obj[:mams]=0
+
+            objects << obj
           else
+            obj[:ms]=0
+            obj[:pe]=0
+            obj[:ke]=0
             obj[:max]=obj[:x]
             obj[:may]=obj[:y]
           end
-
-          save_obj=obj if save_obj.nil?
-
-            obj[:mams] = 44   #(((obj[:max] - save_obj[:max])**2 + (obj[:may] - save_obj[:may])**2)**0.5)/(obj[:seq_secs] - save_obj[:seq_secs]).to_i
-            #obj[:mams]=0
-
-          # energy change
-          obj[:pe] = GLIDER_MASS * GRAV_CONST * (obj[:baro_alt] )
-          #obj[:pe] = GLIDER_MASS * GRAV_CONST * (obj[:baro_alt] + Polar_sink[obj[:ms]] * (obj[:seq_secs] - save_obj[:seq_secs]))
-          obj[:ke] = 0.5 * GLIDER_MASS * (obj[:ms])**2             # should compensate speed for wind component here
-          obj[:te]= obj[:ke] + obj[:pe]
-          obj[:dedt]=((obj[:pe] - save_obj[:pe]) + (obj[:ke] - save_obj[:ke])) / (obj[:seq_secs] - save_obj[:seq_secs])
-
-          objects << obj
 
           save_obj=obj
         end
@@ -270,7 +281,7 @@ task :ligc2, [:dir] => :environment do |t, args|
 
       ary = []
       objects.each do |obj|
-        ary << [ obj[:lat_lon], obj[:mams]*1000, obj[:gps_alt], obj[:enl], obj[:seq_secs], obj[:igcfile_id], obj[:rlat], obj[:rlon], obj[:x], obj[:y]]
+        ary << [ obj[:lat_lon], obj[:dedt]/10, obj[:gps_alt], obj[:enl], obj[:seq_secs], obj[:igcfile_id], obj[:rlat], obj[:rlon], obj[:x], obj[:y]]
         #ary << [ obj[:lat_lon], obj[:baro_alt], obj[:gps_alt], obj[:enl], obj[:seq_secs], obj[:igcfile_id], obj[:rlat], obj[:rlon], obj[:x], obj[:y]]
       end
 
@@ -313,12 +324,7 @@ task :ligc2, [:dir] => :environment do |t, args|
   end
 
 
-
-
-
-
   puts "Starting..."
-
   import = Import.new
   import.interpolate_polar()
   import.import_igcfiles("#{args.dir}")

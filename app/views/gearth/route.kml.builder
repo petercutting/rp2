@@ -14,22 +14,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
       xml.Snippet(:maxLines => "9") {
 ##        xml.cdata!(text)
       }
-      xml.name("cross-hair2")
-      xml.Style {
-        xml.LabelStyle {
-          xml.scale(0)
-        }
-        xml.IconStyle {
-          xml.color("ffefebde")
-          xml.Icon {
-            xml.href("root://icons/palette-3.png")
-            xml.x(128)
-            xml.y(32)
-            xml.w(32)
-            xml.h(32)
-          }
-        }
-      }
+
       xml.LineString {
             xml.name("IGC data")
 
