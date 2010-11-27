@@ -68,3 +68,16 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
     }
   }
 end
+
+
+          xml.text! "1,2,3\n"
+
+
+
+        xml.coordinates(
+          @ps.each{ |p|
+            "#{p.inspect}"
+          }
+        )
+        }
+                    "#{p[:lat]},#{p[:lon]},#{p[:alt]}\n"
