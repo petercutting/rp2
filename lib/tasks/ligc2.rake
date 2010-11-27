@@ -281,7 +281,7 @@ task :ligc2, [:dir] => :environment do |t, args|
 
       ary = []
       objects.each do |obj|
-        ary << [ obj[:lat_lon], obj[:dedt]/10, obj[:gps_alt], obj[:enl], obj[:seq_secs], obj[:igcfile_id], obj[:rlat], obj[:rlon], obj[:x], obj[:y]]
+        ary << [ obj[:lat_lon], obj[:baro_alt], obj[:dedt], obj[:enl], obj[:seq_secs], obj[:igcfile_id], obj[:rlat], obj[:rlon], obj[:x], obj[:y]]
         #ary << [ obj[:lat_lon], obj[:baro_alt], obj[:gps_alt], obj[:enl], obj[:seq_secs], obj[:igcfile_id], obj[:rlat], obj[:rlon], obj[:x], obj[:y]]
       end
 

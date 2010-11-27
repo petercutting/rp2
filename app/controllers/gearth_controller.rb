@@ -18,9 +18,9 @@ class GearthController < ApplicationController
     igcps = igcf.igcpoint(:all, :order => 'seq_secs')   # get points
     igcps.each do |igcp|          # for each point
       #@ps<<(igcp.rlon/RAD_PER_DEG).to_s + ',' + (igcp.rlat/RAD_PER_DEG).to_s + ',' + igcp.baro_alt.to_s + "\n"         # push data to array
-      x = [ (igcp.rlon/RAD_PER_DEG).to_s , (igcp.rlat/RAD_PER_DEG).to_s , igcp.baro_alt.to_s]
+      x = [ (igcp.rlon/RAD_PER_DEG).to_s , (igcp.rlat/RAD_PER_DEG).to_s , igcp.baro_alt.to_s, igcp.gps_alt.to_s]
       #x = { :lat => (igcp.rlon/RAD_PER_DEG).to_s , :lon => (igcp.rlat/RAD_PER_DEG).to_s , :alt => igcp.baro_alt.to_s }
-      puts x.inspect  # push data to array
+      #puts x.inspect  # push data to array
 
       @ps << x
     end
