@@ -81,3 +81,10 @@ end
         )
         }
                     "#{p[:lat]},#{p[:lon]},#{p[:alt]}\n"
+
+
+                    #      xml.href("#{server}/route/#{igcf.filename}")
+
+
+                    When a call is made from the client (Google Earth) to the server, the server must (1) return a response code of HTTP 200 and (2) set the response's content type to text/plain or application/vnd.google-earth.kml+xml.
+

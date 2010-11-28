@@ -3,6 +3,30 @@ class GearthController < ApplicationController
   RADIUS = 6371 * 1000
 
 
+
+  def dedt
+    @ps=[]
+    puts 'index ' + params[:CENTRE].inspect
+    @centre=["0","0"]
+    @bbox=["0","0","0","0"]
+    @centre = params[:CENTRE].split(",") unless params[:CENTRE].nil?
+    @bbox = params[:BBOX].split(",") unless params[:BBOX].nil?
+
+    igcf = Igcfile.find(params[:id])
+
+    igcps = igcf.igcpoint(:all, :order => 'seq_secs')   # get points
+    igcps.each do |igcp|          # for each point
+      #@ps<<(igcp.rlon/RAD_PER_DEG).to_s + ',' + (igcp.rlat/RAD_PER_DEG).to_s + ',' + igcp.baro_alt.to_s + "\n"         # push data to array
+      @ps << [ (igcp.rlon/RAD_PER_DEG).to_s , (igcp.rlat/RAD_PER_DEG).to_s , igcp.gps_alt.to_s]
+
+    end
+    respond_to do |format|
+      format.html # index.html.erb
+      format.kml  # index.kml.builder
+    end
+  end
+
+
   def route
     @ps=[]
     puts 'index ' + params[:CENTRE].inspect
@@ -18,11 +42,10 @@ class GearthController < ApplicationController
     igcps = igcf.igcpoint(:all, :order => 'seq_secs')   # get points
     igcps.each do |igcp|          # for each point
       #@ps<<(igcp.rlon/RAD_PER_DEG).to_s + ',' + (igcp.rlat/RAD_PER_DEG).to_s + ',' + igcp.baro_alt.to_s + "\n"         # push data to array
-      x = [ (igcp.rlon/RAD_PER_DEG).to_s , (igcp.rlat/RAD_PER_DEG).to_s , igcp.baro_alt.to_s, igcp.gps_alt.to_s]
+      @ps <<[ (igcp.rlon/RAD_PER_DEG).to_s , (igcp.rlat/RAD_PER_DEG).to_s , igcp.baro_alt.to_s, (igcp.gps_alt/40).to_s]
       #x = { :lat => (igcp.rlon/RAD_PER_DEG).to_s , :lon => (igcp.rlat/RAD_PER_DEG).to_s , :alt => igcp.baro_alt.to_s }
       #puts x.inspect  # push data to array
 
-      @ps << x
     end
     respond_to do |format|
       format.html # index.html.erb
