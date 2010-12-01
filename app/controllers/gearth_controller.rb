@@ -78,6 +78,51 @@ class GearthController < ApplicationController
     end
   end
 
+  def network_link3
+    Dir.pwd = "public/data"
+    #dir = params[:dir] unless params[:dir].nil?
+
+    puts 'dir ' + dir
+    #puts 'network_link3 ' + params.inspect
+    @entries = []
+
+    # Cycle through directory
+    Dir.entries.each do |entry|
+      if entry == "." || entry == ".."
+        next
+      end
+
+      if File.directory?(entry)
+        puts 'dir ' + entry
+        @entries << entry+"/"
+      end
+
+      if File.file?(entry)
+        if entry.downcase.match(".igc")
+          puts 'igc ' + entry
+          @entries << entry
+        end
+      end
+    end
+
+    respond_to do |format|
+      #format.html # index.html.erb
+      format.kml  # index.kml.builder
+    end
+  end
+
+  def network_link2
+    #puts 'network_link ' + params.inspect
+
+    @igcfs = Igcfile.find(:all)
+
+    respond_to do |format|
+      #format.html # index.html.erb
+      format.kml  # index.kml.builder
+    end
+  end
+
+
   def network_link
     #puts 'network_link ' + params.inspect
 
