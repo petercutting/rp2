@@ -21,10 +21,10 @@ xml.Document {
 
     @entries.each do |entry|
 
-if entry.last.match("/")
+if File.directory?(entry)
     xml.Folder{
-  xml.NetworkLink {
     xml.name("#{entry}")
+  xml.NetworkLink {
     xml.open(1)
     xml.visibility(0)
     xml.flyToView(0)
@@ -38,7 +38,7 @@ if entry.last.match("/")
   }
   end
 
-  if entry.downcase.match(".igc")
+  if File.file?(entry)
 
   xml.NetworkLink {
     xml.name("#{entry}")
@@ -46,7 +46,7 @@ if entry.last.match("/")
     xml.visibility(0)
     xml.flyToView(0)
     xml.Link {
-      xml.href(url_for(:action=>:route, :file => entry,:only_path => false))
+      xml.href(url_for(:action=>:route, :path => entry,:only_path => false))
       xml.viewRefreshMode("onStop")
       xml.viewRefreshTime(0.5)
       xml.viewFormat("BBOX=[bboxWest],[bboxSouth],[bboxEast],[bboxNorth]&CENTRE=[lookatLon],[lookatLat]")
