@@ -26,9 +26,10 @@ if File.directory?(entry)
   end
 
   if File.file?(entry)
-
+xml.Folder{
+xml.name("#{entry}")
   xml.NetworkLink {
-    xml.name("#{entry}")
+    xml.name("Route")
     xml.open(1)
     xml.visibility(0)
     xml.flyToView(0)
@@ -39,6 +40,31 @@ if File.directory?(entry)
       }
     }
 
+  xml.NetworkLink {
+    xml.name("Energy change (ignoring wind)")
+    xml.open(1)
+    xml.visibility(0)
+    xml.flyToView(0)
+    xml.Link {
+      xml.href(url_for(:action=>:dedt, :path => entry,:only_path => false))
+      xml.viewRefreshMode("onRequest")
+      xml.viewFormat("BBOX=[bboxWest],[bboxSouth],[bboxEast],[bboxNorth]&CENTRE=[lookatLon],[lookatLat]")
+      }
+    }
+
+  xml.NetworkLink {
+    xml.name("speed 30 sec moving average")
+    xml.open(1)
+    xml.visibility(0)
+    xml.flyToView(0)
+    xml.Link {
+      xml.href(url_for(:action=>:mams, :path => entry,:only_path => false))
+      xml.viewRefreshMode("onRequest")
+      xml.viewFormat("BBOX=[bboxWest],[bboxSouth],[bboxEast],[bboxNorth]&CENTRE=[lookatLon],[lookatLat]")
+      }
+    }
+
+    }
   end
 end
 

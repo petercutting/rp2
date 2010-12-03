@@ -16,10 +16,11 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
       }
 		xml.MultiGeometry {
         xml.LineString {
+        xml.extrude("1")
         xml.altitudeMode("absolute")
         xml.coordinates{
           @objects.each do |o|
-            xml.text! "#{o[:dlon]},#{o[:dlat]},#{o[:baro_alt]} "
+            xml.text! "#{o[:dlon]},#{o[:dlat]},#{o[:mams]*20} "
           end
         }
         }

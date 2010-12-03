@@ -5,51 +5,57 @@ class GearthController < ApplicationController
   GRAV_CONST = 9.81
   GLIDER_MASS = 450
 
+
   def dedt
-    @ps=[]
-    puts 'index ' + params[:CENTRE].inspect
+    puts 'dedt ' + params[:path].inspect
     @centre=["0","0"]
     @bbox=["0","0","0","0"]
     @centre = params[:CENTRE].split(",") unless params[:CENTRE].nil?
     @bbox = params[:BBOX].split(",") unless params[:BBOX].nil?
 
-    igcf = Igcfile.find(params[:id])
+    @objects=[]
+    import_a_igcfile(params[:path],@objects)
 
-    igcps = igcf.igcpoint(:all, :order => 'seq_secs')   # get points
-    igcps.each do |igcp|          # for each point
-      #@ps<<(igcp.rlon/RAD_PER_DEG).to_s + ',' + (igcp.rlat/RAD_PER_DEG).to_s + ',' + igcp.baro_alt.to_s + "\n"         # push data to array
-      @ps << [ (igcp.rlon/RAD_PER_DEG).to_s , (igcp.rlat/RAD_PER_DEG).to_s , igcp.gps_alt.to_s]
-
-    end
     respond_to do |format|
-      format.html # index.html.erb
+      #format.html # index.html.erb
       format.kml  # index.kml.builder
     end
   end
 
+
+  def mams
+    puts 'dedt ' + params[:path].inspect
+    @centre=["0","0"]
+    @bbox=["0","0","0","0"]
+    @centre = params[:CENTRE].split(",") unless params[:CENTRE].nil?
+    @bbox = params[:BBOX].split(",") unless params[:BBOX].nil?
+
+    @objects=[]
+    import_a_igcfile(params[:path],@objects)
+
+    respond_to do |format|
+      #format.html # index.html.erb
+      format.kml  # index.kml.builder
+    end
+  end
 
   def route
-    @ps=[]
-    puts 'index ' + params[:CENTRE].inspect
+    puts 'route ' + params[:path].inspect
     @centre=["0","0"]
     @bbox=["0","0","0","0"]
     @centre = params[:CENTRE].split(",") unless params[:CENTRE].nil?
     @bbox = params[:BBOX].split(",") unless params[:BBOX].nil?
 
-    objects=[]
-    import_a_igcfile(params[:path],objects)
+    @objects=[]
+    import_a_igcfile(params[:path],@objects)
 
-    objects.each do |object|          # for each point
-      @ps <<[ (object[:rlon]/RAD_PER_DEG).to_s , (object[:rlat]/RAD_PER_DEG).to_s , object[:baro_alt].to_s]
-      #puts x.inspect  # push data to array
-    end
     respond_to do |format|
-      format.html # index.html.erb
+      #format.html # index.html.erb
       format.kml  # index.kml.builder
     end
   end
 
-  def xindex
+  def index
     puts 'index ' + params[:CENTRE].inspect
     @centre=["0","0"]
     @bbox=["0","0","0","0"]
@@ -74,7 +80,9 @@ class GearthController < ApplicationController
     end
   end
 
+
   def network_link3
+    puts 'network_link3'
     path = "public/data"
     path = params[:path] unless params[:path].nil?
 
@@ -94,7 +102,7 @@ class GearthController < ApplicationController
 
       puts entry.inspect
       if File.directory?(entry)
-        puts 'dir2 ' + entry
+        #puts 'dir2 ' + entry
         @entries << entry
       end
 
@@ -137,7 +145,7 @@ class GearthController < ApplicationController
 
 #################
   def import_a_igcfile(file,objects)
-
+puts 'import_a_igcfile'
     save_obj=Hash.new
     sma=[]
 
@@ -209,11 +217,13 @@ class GearthController < ApplicationController
         end
 
         dd,mm,mmm,ns = a[2].scan(%r{(\d{2})(\d{2})(\d{3})(\w{1})}).flatten    #Latitude DDMMMMMN Valid characters N, S, 0-9
-        rlat = ((dd.to_f + mm.to_f/60 + (mmm.to_f/1000)/60))*RAD_PER_DEG
+        dlat = ((dd.to_f + mm.to_f/60 + (mmm.to_f/1000)/60))
+        rlat = dlat*RAD_PER_DEG
         rlat = - rlat unless ns=='N'
 
         ddd,mm,mmm,ew = a[3].scan(%r{(\d{3})(\d{2})(\d{3})(\w{1})}).flatten   #Longitude DDDMMMMME Valid characters E,W, 0-9
-        rlon = ((ddd.to_f + mm.to_f/60 + (mmm.to_f/1000)/60))*RAD_PER_DEG
+        dlon = ((ddd.to_f + mm.to_f/60 + (mmm.to_f/1000)/60))
+        rlon = dlon*RAD_PER_DEG
         rlon = - rlon unless ew=='E'
 
         # cartesian
@@ -222,18 +232,14 @@ class GearthController < ApplicationController
 
         obj = { :lat_lon => a[2]+','+a[3], :baro_alt => a[5].to_i, :gps_alt => a[6].to_i,
           :enl => enl.to_i, :seq_secs => time, :rlat => rlat, :rlon => rlon,
-          :x => x, :y => y}
+          :dlat => dlat, :dlon => dlon,:x => x, :y => y}
 
         if not save_obj.empty?
           #puts "one time"
 
           #speed
           obj[:ms] = (((obj[:x] - save_obj[:x])**2 + (obj[:y] - save_obj[:y])**2)**0.5)/(obj[:seq_secs] - save_obj[:seq_secs])
-          #obj[:ms] = (obj[:seq_secs] - save_obj[:seq_secs])
-          #obj[:ms] = (obj[:seq_secs] - save_obj[:seq_secs])
-          #          if obj[:ms] == 0
-          #            puts obj[:ms]
-          #          end
+
           # energy change
           obj[:pe] = GLIDER_MASS * GRAV_CONST * (obj[:baro_alt] )
           #obj[:pe] = GLIDER_MASS * GRAV_CONST * (obj[:baro_alt] + Polar_sink[obj[:ms]] * (obj[:seq_secs] - save_obj[:seq_secs]))
