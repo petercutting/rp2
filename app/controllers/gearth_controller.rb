@@ -75,27 +75,27 @@ class GearthController < ApplicationController
   end
 
   def network_link3
-    dir = "public/data"
-    #dir = params[:dir] unless params[:dir].nil?
+    path = "public/data"
+    path = params[:path] unless params[:path].nil?
 
-    #puts 'dir ' + dir
+    #puts 'path ' + path
     #puts 'p ' + Dir.pwd
     #puts 'network_link3 ' + params.inspect
     @entries = []
 
     # Cycle through directory
-    Dir.foreach(dir) do |e|
-      entry = dir + "/" + e
-      puts entry.inspect
+    Dir.foreach(path) do |e|
+      entry = path + "/" + e
 
       if entry.last == "."
-        puts 'ignoring ' + entry
+        #puts 'ignoring ' + entry
         next
       end
 
+      puts entry.inspect
       if File.directory?(entry)
-        #puts 'dir2 ' + entry
-        @entries << e
+        puts 'dir2 ' + entry
+        @entries << entry
       end
 
       if File.file?(entry)
