@@ -16,7 +16,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
       xml.Style{
       xml.LineStyle{
         xml.color("af0000ff")
-        xml.width("3")
+        xml.width("2")
       }
     }
       xml.Snippet(:maxLines => "9") {
@@ -41,7 +41,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
       xml.Style{
       xml.LineStyle{
         xml.color("af00ff00")
-        xml.width("3")
+        xml.width("2")
       }
     }
       xml.Snippet(:maxLines => "9") {
@@ -65,7 +65,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
       xml.Style{
       xml.LineStyle{
         xml.color("ffffffff")
-        xml.width("3")
+        xml.width("2")
       }
     }
       xml.Snippet(:maxLines => "9") {

@@ -2,7 +2,6 @@ server = url_for :controller => 'gearth',  :only_path => false
 xml.instruct!
 xml.kml(:xmlns => "http://earth.google.com/kml/2.2") {
 xml.Document {
-  xml.name("No effect")
   xml.open(1)
   xml.visible(1)
 
@@ -10,7 +9,7 @@ xml.Document {
 
     if File.directory?(entry)
     xml.NetworkLink {
-    xml.name("#{entry}")
+    xml.name("#{entry}".split('/').last)
     xml.open(1)
     xml.visibility(0)
     xml.flyToView(0)
@@ -24,8 +23,8 @@ xml.Document {
 
   if File.file?(entry)
     xml.NetworkLink {
-    xml.name("#{entry}")
-    xml.open(1)
+    xml.name("#{entry}".split('/').last)
+    xml.open(0)
     xml.visibility(0)
     xml.flyToView(0)
     xml.Link {
