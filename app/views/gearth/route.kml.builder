@@ -10,7 +10,64 @@ Y Max: #{@bbox[3]}
 xml.instruct! :xml
 xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
   xml.Document {
+
     xml.Placemark {
+    xml.name("dedt")
+      xml.Style{
+      xml.LineStyle{
+        xml.color("afafffa0")
+        xml.width("3")
+      }
+    }
+      xml.Snippet(:maxLines => "9") {
+##        xml.cdata!(text)
+      }
+		xml.MultiGeometry {
+        xml.LineString {
+        xml.extrude("1")
+        xml.altitudeMode("absolute")
+        xml.coordinates{
+          @objects.each do |o|
+            xml.text! "#{o[:dlon]},#{o[:dlat]},#{o[:dedt]/35} "
+          end
+        }
+        }
+      }
+    }
+
+
+    xml.Placemark {
+    xml.name("mams")
+      xml.Style{
+      xml.LineStyle{
+        xml.color("afafffa0")
+        xml.width("3")
+      }
+    }
+      xml.Snippet(:maxLines => "9") {
+##        xml.cdata!(text)
+      }
+		xml.MultiGeometry {
+        xml.LineString {
+        xml.altitudeMode("absolute")
+        xml.extrude("1")
+        xml.coordinates{
+          @objects.each do |o|
+            xml.text! "#{o[:dlon]},#{o[:dlat]},#{o[:mams]*20} "
+          end
+        }
+        }
+      }
+    }
+
+    xml.Placemark {
+    xml.name("route")
+      xml.Style{
+      xml.LineStyle{
+        xml.color("afafffa0")
+        xml.width("3")
+      }
+    }
       xml.Snippet(:maxLines => "9") {
 ##        xml.cdata!(text)
       }

@@ -11,6 +11,12 @@ xml.instruct! :xml
 xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
   xml.Document {
     xml.Placemark {
+      xml.Style{
+      xml.LineStyle{
+        xml.color("5fff0000")
+        xml.width("3")
+      }
+      }
       xml.Snippet(:maxLines => "9") {
 ##        xml.cdata!(text)
       }

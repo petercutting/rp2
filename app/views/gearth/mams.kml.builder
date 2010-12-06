@@ -14,7 +14,14 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
       xml.Snippet(:maxLines => "9") {
 ##        xml.cdata!(text)
       }
+      		xml <<    "<Style>
+      <LineStyle>
+        <color>7f00af00</color>
+        <width>3</width>
+      </LineStyle>
+    </Style>"
 		xml.MultiGeometry {
+
         xml.LineString {
         xml.extrude("1")
         xml.altitudeMode("absolute")
