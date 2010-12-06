@@ -15,7 +15,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
     xml.name("dedt")
       xml.Style{
       xml.LineStyle{
-        xml.color("afafffa0")
+        xml.color("af0000ff")
         xml.width("3")
       }
     }
@@ -40,7 +40,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
     xml.name("mams")
       xml.Style{
       xml.LineStyle{
-        xml.color("afafffa0")
+        xml.color("af00ff00")
         xml.width("3")
       }
     }
@@ -64,7 +64,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
     xml.name("route")
       xml.Style{
       xml.LineStyle{
-        xml.color("afafffa0")
+        xml.color("ffffffff")
         xml.width("3")
       }
     }
