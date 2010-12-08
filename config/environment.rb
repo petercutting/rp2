@@ -42,5 +42,3 @@ Rails::Initializer.run do |config|
 end
 
 
-$polar_sink = Igc.interpolate_polar()
-

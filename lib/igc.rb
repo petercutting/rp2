@@ -6,10 +6,10 @@ module Igc
   GLIDER_MASS = 450
 
 
-  def import_a_igcfile(file,contents)
+  def Igc.import_igcfile(file)
     @objects=[]
 
-    puts 'import_a_igcfile'
+    #puts 'import_igcfile'
     save_obj=Hash.new
 
     num_recs=1 # to prevent divide by zero
@@ -17,11 +17,14 @@ module Igc
 
     start = Time.now
 
-    # I033638FXA3941ENL4247REX        an I record defines B record extensions
     counter=0
     time=0
+    fp = File.open(file, "r")
+    contents = fp.read
+    fp.close()
 
     # get I record
+    # I033638FXA3941ENL4247REX        an I record defines B record extensions
     b_extensions2 = Hash.new
     contents.each_line do |line|
       a=line.unpack('a1a2a7a7a7a7a7a7a7') # hopefully enough
@@ -53,13 +56,12 @@ module Igc
       #      puts b_extensions2['ENL'].inspect
     end
 
-    #    last_time=0
     contents.each_line do |line|
       # 0(1)=rec, 1(6)=time, 2(8)=lat, 3(9)=lon, 4(1)=validity, 5(5)=baro_alt, 6(5)=gps_alt
       # optional see Irec  7(3)=fix_accuracy, 8(2)=num_satelites, 9(3)=enl
 
       a=line.unpack('a1a6a8a9a1a5a5a')
-      if a[0].to_s == 'B'
+      if a[0].to_s == 'B'               # only interested in B records
 
         num_recs=num_recs+1
 
@@ -187,13 +189,15 @@ module Igc
   end
 
 
-
   def Igc.interpolate_polar()
+    #http://users.ox.ac.uk/~gliding/docs/Polar%20Comparison%20Chart.xls
+    # LS4 40KG/m2
+
     polar_sink = []
     polar_sink_in_ms = [0.80,0.71,0.69,0.69,0.69,0.72,0.75,0.79,0.86,0.91,0.98,1.05,1.12,1.20,1.29,1.38,1.49,1.62,1.76,1.91,2.08,2.27,2.48,2.69]
     polar_speed_in_kmh = [80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195]
     polar_speed_in_ms = polar_speed_in_kmh.collect{|x| eval(sprintf("%2.0f",x/3.6))}
-    p#uts polar_speed_in_ms.inspect
+    #puts polar_speed_in_ms.inspect
 
     polar_sink.clear
 
