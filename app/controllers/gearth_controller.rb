@@ -51,11 +51,8 @@ class GearthController < ApplicationController
     @centre = params[:CENTRE].split(",") unless params[:CENTRE].nil?
     @bbox = params[:BBOX].split(",") unless params[:BBOX].nil?
 
-    fp = File.open(params[:path], "r")
-    contents = fp.read
-    fp.close
-
-    import_a_igcfile(params[:path],contents)
+    @objects=[]
+    Igc.import_igcfile(params[:path],@objects)
 
     respond_to do |format|
       #format.html # index.html.erb

@@ -6,20 +6,59 @@ module Igc
   GLIDER_MASS = 450
 
 
-  def Igc.import_igcfile(file)
-    @objects=[]
+  def Igc.find_thermals(path,objects)
+
+    objects.each_with_index do |object,index|
+
+    end
+
+    #
+    #    objects.each_with_index do |object,index|
+    #
+    #      avg_cnt=0
+    #      objects[0..index].reverse_each {|item|
+    #        break if item[:seq_secs] < object[:seq_secs]-40
+    #        avg_cnt+=1
+    #
+    #        #          te = (object[:te] - save_obj[:te]) unless save_obj[:te].nil?
+    #        #          tt = (object[:seq_secs] - save_obj[:seq_secs]) unless save_obj[:seq_secs].nil?
+    #        #          dedt = te/tt - ()
+    #
+    #        #            max=max+item[:x]
+    #        #            may=may+item[:y]
+    #      }
+    #
+    #      #          if avg_cnt > 0
+    #      #            obj[:max]=(max/avg_cnt).to_i
+    #      #            obj[:may]=(may/avg_cnt).to_i
+    #      #            obj[:mams] = (((obj[:max] - item[:max])**2 + (obj[:may] - item[:may])**2)**0.5)/(obj[:seq_secs] -item[:seq_secs]).to_i
+    #      #          else
+    #      #            obj[:mams]=0
+    #      #            #obj[:max]=obj[:x]
+    #      #            #obj[:may]=obj[:y]
+    #      #          end
+    #      # the import bogs down if there are too many records so chop it up
+    #      counter=counter+1
+    #      #        if counter > 100
+    #      #          Igcpoint.import(columns, objects, options)
+    #      #          objects=[]
+    #      #          counter=0
+    #      #        end
+    #    end
+
+  end
+
+  def Igc.import_igcfile(path,objects)
 
     #puts 'import_igcfile'
     save_obj=Hash.new
-
     num_recs=1 # to prevent divide by zero
     counter=0
-
     start = Time.now
-
     counter=0
     time=0
-    fp = File.open(file, "r")
+
+    fp = File.open(path, "r")
     contents = fp.read
     fp.close()
 
@@ -97,14 +136,10 @@ module Igc
           :dlat => dlat, :dlon => dlon,:x => x, :y => y}
 
         if not save_obj.empty?
-          #puts "one time"
-
           #speed
           obj[:ms] = (((obj[:x] - save_obj[:x])**2 + (obj[:y] - save_obj[:y])**2)**0.5)/(obj[:seq_secs] - save_obj[:seq_secs])
 
           # energy change
-          #polar_sink = [] if polar_sink.nil?
-          #Igc.interpolate_polar(polar_sink)
           #obj[:pe] = Constants::GLIDER_MASS * Constants::GRAV_CONST * (obj[:baro_alt] )
           obj[:pe] = GLIDER_MASS * GRAV_CONST * (obj[:baro_alt] + $polar_sink[obj[:ms]] * (obj[:seq_secs] - save_obj[:seq_secs]))
           obj[:ke] = 0.5 * Constants::GLIDER_MASS * (obj[:ms])**2             # should compensate speed for wind component here
@@ -115,7 +150,7 @@ module Igc
           max=0
           may=0
           avg_cnt=0
-          @objects.reverse_each {|item|
+          objects.reverse_each {|item|
             break if item[:seq_secs] < obj[:seq_secs]-30
             avg_cnt+=1
             max=max+item[:x]
@@ -132,7 +167,7 @@ module Igc
 
           obj[:mams] = (((obj[:max] - save_obj[:max])**2 + (obj[:may] - save_obj[:may])**2)**0.5)/(obj[:seq_secs] - save_obj[:seq_secs]).to_i
 
-          @objects << obj
+          objects << obj
 
         else
           obj[:ms]=0
@@ -146,43 +181,9 @@ module Igc
       end
     end
 
-    #
-    #    @objects.each_with_index do |object,index|
-    #
-    #      avg_cnt=0
-    #      @objects[0..index].reverse_each {|item|
-    #        break if item[:seq_secs] < object[:seq_secs]-40
-    #        avg_cnt+=1
-    #
-    #        #          te = (object[:te] - save_obj[:te]) unless save_obj[:te].nil?
-    #        #          tt = (object[:seq_secs] - save_obj[:seq_secs]) unless save_obj[:seq_secs].nil?
-    #        #          dedt = te/tt - ()
-    #
-    #        #            max=max+item[:x]
-    #        #            may=may+item[:y]
-    #      }
-    #
-    #      #          if avg_cnt > 0
-    #      #            obj[:max]=(max/avg_cnt).to_i
-    #      #            obj[:may]=(may/avg_cnt).to_i
-    #      #            obj[:mams] = (((obj[:max] - item[:max])**2 + (obj[:may] - item[:may])**2)**0.5)/(obj[:seq_secs] -item[:seq_secs]).to_i
-    #      #          else
-    #      #            obj[:mams]=0
-    #      #            #obj[:max]=obj[:x]
-    #      #            #obj[:may]=obj[:y]
-    #      #          end
-    #      # the import bogs down if there are too many records so chop it up
-    #      counter=counter+1
-    #      #        if counter > 100
-    #      #          Igcpoint.import(columns, @objects, options)
-    #      #          @objects=[]
-    #      #          counter=0
-    #      #        end
-    #    end
-
     #Igcpoint.import(columns, ary, options) unless ary.length==0
     secs =  Time.now - start
-    puts file.to_s + ' ' + num_recs.to_s + ' ' + (num_recs/secs).to_i.to_s
+    puts path.to_s + ' ' + num_recs.to_s + ' ' + (num_recs/secs).to_i.to_s
     STDOUT.flush
 
     num_recs

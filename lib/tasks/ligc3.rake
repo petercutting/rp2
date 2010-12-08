@@ -44,12 +44,6 @@ task :ligc3, [:dir] => :environment do |t, args|
     def import_a_igcfile(path)
       start = Time.now
 
-      columns = [ :lat_lon, :baro_alt, :gps_alt, :enl, :seq_secs, :igcfile_id, :rlat, :rlon, :x, :y]
-      options = { :validate => false }
-      save_obj=Hash.new
-      sma=[]
-
-      objects = []
       num_recs=1 # to prevent divide by zero
       counter=0
 
@@ -61,7 +55,10 @@ task :ligc3, [:dir] => :environment do |t, args|
         #next
       end
 
-      num_recs = Igc.import_igcfile(path)
+      @objects=[]
+      num_recs = Igc.import_igcfile(path,@objects)
+      Igc.find_thermals(path,@objects)
+
       #          secs =  Time.now - start
       #          puts path.to_s + ' ' + num_recs.to_s + ' ' + (num_recs/secs).to_i.to_s
       num_recs

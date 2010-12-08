@@ -25,7 +25,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
 		xml.MultiGeometry {
         xml.LineString {
         xml.extrude("1")
-        xml.altitudeMode("absolute")
+        xml.altitudeMode("relativeToGround")
         xml.coordinates{
           @objects.each do |o|
             xml.text! "#{o[:dlon]},#{o[:dlat]},#{o[:dedt]/35} "
@@ -49,7 +49,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
       }
 		xml.MultiGeometry {
         xml.LineString {
-        xml.altitudeMode("absolute")
+        xml.altitudeMode("relativeToGround")
         xml.extrude("1")
         xml.coordinates{
           @objects.each do |o|
