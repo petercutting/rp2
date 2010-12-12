@@ -8,17 +8,16 @@ module Igc
 
   def Igc.find_thermals(path,objects)
 
-
     start_of_therm=0
     objects.each_with_index do |object,index|
-
 
       if object[:mams]<20
         if start_of_therm==0
           start_of_therm=index
+          obj=object
         else
-
-
+          if object[:time]-obj[:time]=120
+          end
         end
 
       end

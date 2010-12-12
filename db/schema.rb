@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20101121214217) do
+ActiveRecord::Schema.define(:version => 20101211140859) do
 
   create_table "igcfiles", :force => true do |t|
     t.string   "filename"
@@ -17,6 +17,7 @@ ActiveRecord::Schema.define(:version => 20101121214217) do
     t.integer  "wind_strength"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "path"
   end
 
   add_index "igcfiles", ["filename"], :name => "index_igcfiles_on_filename", :unique => true
@@ -37,5 +38,17 @@ ActiveRecord::Schema.define(:version => 20101121214217) do
   end
 
   add_index "igcpoints", ["igcfile_id", "seq_secs"], :name => "index_igcpoints_on_igcfile_id_and_seq_secs", :unique => true
+
+  create_table "windpoints", :force => true do |t|
+    t.integer "igcfile_id"
+    t.float   "flat"
+    t.float   "flon"
+    t.float   "direction"
+    t.integer "speed"
+    t.integer "altitude"
+    t.integer "seq_secs"
+  end
+
+  add_index "windpoints", ["igcfile_id"], :name => "index_windpoints_on_igcfile_id"
 
 end

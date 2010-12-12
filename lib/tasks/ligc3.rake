@@ -25,6 +25,7 @@ task :ligc3, [:dir] => :environment do |t, args|
 
       Igcfile.delete_all
       Igcpoint.delete_all
+      Windpoint.delete_all
 
       WalkDirs(dir)
       #STDOUT.flush
@@ -43,21 +44,15 @@ task :ligc3, [:dir] => :environment do |t, args|
 
     def import_a_igcfile(path)
       start = Time.now
-
       num_recs=1 # to prevent divide by zero
-      counter=0
 
-      begin
-        igcfile = Igcfile.new()
-        igcfile.filename=path
-        igcfile.save!
-        rescue
-        #next
-      end
+      filename = path.split("/").last
+      Igcfile.delete_all( ["filename = ?",filename])
+      igcfile = Igcfile.create!(:filename => filename,:path => path)
 
       @objects=[]
       num_recs = Igc.import_igcfile(path,@objects)
-      Igc.find_thermals(path,@objects)
+      #Igc.find_thermals(path,@objects)
 
       #          secs =  Time.now - start
       #          puts path.to_s + ' ' + num_recs.to_s + ' ' + (num_recs/secs).to_i.to_s
