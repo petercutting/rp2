@@ -6,59 +6,7 @@ module Igc
   GLIDER_MASS = 450
 
 
-  def Igc.find_thermals(path,objects)
 
-    start_of_therm=0
-    objects.each_with_index do |object,index|
-
-      if object[:mams]<20
-        if start_of_therm==0
-          start_of_therm=index
-          obj=object
-        else
-          if object[:time]-obj[:time]=120
-          end
-        end
-
-      end
-
-    end
-
-    #
-    #    objects.each_with_index do |object,index|
-    #
-    #      avg_cnt=0
-    #      objects[0..index].reverse_each {|item|
-    #        break if item[:seq_secs] < object[:seq_secs]-40
-    #        avg_cnt+=1
-    #
-    #        #          te = (object[:te] - save_obj[:te]) unless save_obj[:te].nil?
-    #        #          tt = (object[:seq_secs] - save_obj[:seq_secs]) unless save_obj[:seq_secs].nil?
-    #        #          dedt = te/tt - ()
-    #
-    #        #            max=max+item[:x]
-    #        #            may=may+item[:y]
-    #      }
-    #
-    #      #          if avg_cnt > 0
-    #      #            obj[:max]=(max/avg_cnt).to_i
-    #      #            obj[:may]=(may/avg_cnt).to_i
-    #      #            obj[:mams] = (((obj[:max] - item[:max])**2 + (obj[:may] - item[:may])**2)**0.5)/(obj[:seq_secs] -item[:seq_secs]).to_i
-    #      #          else
-    #      #            obj[:mams]=0
-    #      #            #obj[:max]=obj[:x]
-    #      #            #obj[:may]=obj[:y]
-    #      #          end
-    #      # the import bogs down if there are too many records so chop it up
-    #      counter=counter+1
-    #      #        if counter > 100
-    #      #          Igcpoint.import(columns, objects, options)
-    #      #          objects=[]
-    #      #          counter=0
-    #      #        end
-    #    end
-
-  end
 
   def Igc.import_igcfile(path,objects)
 

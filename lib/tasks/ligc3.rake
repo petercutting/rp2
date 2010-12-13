@@ -19,7 +19,7 @@ task :ligc3, [:dir] => :environment do |t, args|
 
   class Import
 
-    def import_igcfiles(dir)
+    def process_igcfiles(dir)
       puts 'directory is ' + dir
       num_recs=0
 
@@ -29,34 +29,31 @@ task :ligc3, [:dir] => :environment do |t, args|
 
       WalkDirs(dir)
       #STDOUT.flush
-
     end
+
 
     def WalkDirs(path)
       Find.find(path) do |entry|
         if File.file?(entry) and entry.to_s.downcase.match('.igc')
           #puts entry
-          import_a_igcfile(entry)
+          process_igcfile(entry)
         end
       end
     end
 
 
-    def import_a_igcfile(path)
+    def process_igcfile(path)
       start = Time.now
       num_recs=1 # to prevent divide by zero
 
       Igcfile.delete_all( ["filename = ?",path.split("/").last])
 
-      igcfile = Igcfile.new(:path => path)
-      igcfile.path = path
-      igcfile.filename = path.split("/").last
+      igcfile = Igcfile.new(:path => path, :filename => path.split("/").last)
       igcfile.save
 
       #puts igcfile.inspect
       igcfile.import()
-
-      #Igc.find_thermals(path,@objects)
+      igcfile.find_thermals()
 
       seconds =  Time.now - start
       puts path.to_s + ' ' + igcfile.objects.count.to_s + ' ' + (igcfile.objects.count/seconds).to_i.to_s
@@ -68,7 +65,7 @@ task :ligc3, [:dir] => :environment do |t, args|
 
   puts "Starting..."
   import = Import.new
-  import.import_igcfiles("#{args.dir}")
+  import.process_igcfiles("#{args.dir}")
 
 end
 
