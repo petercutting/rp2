@@ -48,18 +48,18 @@ task :ligc3, [:dir] => :environment do |t, args|
 
       Igcfile.delete_all( ["filename = ?",path.split("/").last])
 
-      @igcfile = Igcfile.new()
-      @igcfile.path = path
-      @igcfile.filename = path.split("/").last
-      @igcfile.save!
+      igcfile = Igcfile.new(:path => path)
+      igcfile.path = path
+      igcfile.filename = path.split("/").last
+      igcfile.save
 
-      puts @igcfile.inspect
-      @igcfile.import()
+      #puts igcfile.inspect
+      igcfile.import()
 
       #Igc.find_thermals(path,@objects)
 
       seconds =  Time.now - start
-      puts path.to_s + ' ' + @igcfile.objects.count.to_s + ' ' + (@igcfile.objects.count/seconds).to_i.to_s
+      puts path.to_s + ' ' + igcfile.objects.count.to_s + ' ' + (igcfile.objects.count/seconds).to_i.to_s
       STDOUT.flush
 
     end

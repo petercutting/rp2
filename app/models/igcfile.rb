@@ -2,20 +2,16 @@ class Igcfile < ActiveRecord::Base
   has_many :igcpoint, :dependent => :destroy
   has_many :windpoint, :dependent => :destroy
 
-  #attr_accessor :objects,:filename ,:path
+  attr_accessor :objects
 
-#  def initialize(h)
-#    super()
-#    @path=h[:path]
-#    @filename=h[:path].split("/").last
-#    @objects=[]
-#  end
+  #  def initialize(h)
+  #    super()
+  #  end
 
-#  def after_initialize(h)
-#    @path=h[:path]
-#    @filename=h[:path].split("/").last
-#    @objects=[]
-#  end
+  def after_initialize
+    # after_initialize seems to be necessary since activerecord doesnt always call initialize
+    self.objects=[]
+  end
 
   def import()
     #puts 'import'
@@ -26,6 +22,7 @@ class Igcfile < ActiveRecord::Base
     counter=0
     time=0
 
+    #puts "opening file " + self.path
     fp = File.open(self.path, "r")
     contents = fp.read
     fp.close()
