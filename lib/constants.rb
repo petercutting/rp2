@@ -5,5 +5,4 @@
   GRAV_CONST = 9.81
   GLIDER_MASS = 450
 
-XX = 'hello'
   end
