@@ -23,9 +23,9 @@ task :ligc3, [:dir] => :environment do |t, args|
       puts 'directory is ' + dir
       num_recs=0
 
-      #Igcfile.delete_all
-      #Igcpoint.delete_all
-      #Windpoint.delete_all
+      #Igcfile.destroy_all
+      #Igcpoint.destroy_all
+      #Windpoint.destroy_all
 
       WalkDirs(dir)
       #STDOUT.flush
@@ -46,7 +46,11 @@ task :ligc3, [:dir] => :environment do |t, args|
       start = Time.now
       num_recs=1 # to prevent divide by zero
 
-      Igcfile.delete_all( ["filename = ?",path.split("/").last])
+      begin
+        puts "deleting " + path.split("/").last
+        Igcfile.destroy_all( ["filename = ?",path.split("/").last])
+        rescue
+      end
 
       igcfile = Igcfile.new(:path => path, :filename => path.split("/").last)
       igcfile.save

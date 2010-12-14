@@ -1,3 +1,11 @@
+https://github.com/oneclick/rubyinstaller/wiki/development-kit
+get DevKit-tdm-32-4.5.1-20101202-1039-sfx.exe
+gem install ruby-debug
+gem install cheat
+
+
+http://cheat.errtheblog.com/s/rdebug/
+
 Just to make the definition complete, in the Cartesian coordinate system:
     * the x-axis goes through long,lat (0,0), so longitude 0 meets the equator;
     * the y-axis goes through (0,90);

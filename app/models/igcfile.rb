@@ -2,6 +2,10 @@ class Igcfile < ActiveRecord::Base
   has_many :igcpoint, :dependent => :destroy
   has_many :windpoint, :dependent => :destroy
 
+
+  require 'ruby-debug'
+
+
   attr_accessor :objects
 
 
@@ -15,6 +19,7 @@ class Igcfile < ActiveRecord::Base
 
     start_of_therm=0
     state=Constants::NOT_IN_THERMAL
+    thermal_start={}            # must be declared before case
 
     self.objects.each_with_index do |object,index|
 
@@ -25,23 +30,25 @@ class Igcfile < ActiveRecord::Base
         end
       when Constants::ENTER_THERMAL
         if object[:mams]<20
-          thermal_start=object.clone
-          puts "thermal_start " + thermal_start.inspect
+          thermal_start=object.dup
+          #debugger
+          #puts "thermal_start " + thermal_start.inspect
           state=Constants::IN_THERMAL
         else
           state=Constants::NOT_IN_THERMAL
         end
       when Constants::IN_THERMAL
-
         if object[:mams]<20
           state=Constants::IN_THERMAL
         else
           state=Constants::LEAVE_THERMAL
         end
       when Constants::LEAVE_THERMAL
-        puts "object " + thermal_start.inspect
         if object[:seq_secs]-thermal_start[:seq_secs]>120
-          puts "thermal start at " + thermal_start[:seq_secs]
+          #puts "thermal_start2 " + thermal_start.inspect
+          #puts "thermal start at " + thermal_start[:seq_secs].to_s
+          w = Windpoint.new(:igcfile_id => self.id, :flat => object[:dlat], :flon => object[:dlon], :seq_secs => object[:seq_secs])
+          w.save
         end
         state=Constants::NOT_IN_THERMAL
       else
