@@ -47,7 +47,7 @@ task :ligc3, [:dir] => :environment do |t, args|
       num_recs=1 # to prevent divide by zero
 
       begin
-        puts "deleting " + path.split("/").last
+        #puts "deleting " + path.split("/").last
         Igcfile.destroy_all( ["filename = ?",path.split("/").last])
         rescue
       end
@@ -56,7 +56,8 @@ task :ligc3, [:dir] => :environment do |t, args|
       igcfile.save
 
       #puts igcfile.inspect
-      igcfile.import()
+      objects=[]
+      Igcfile.import(path,igcfile.objects)
       igcfile.find_thermals()
 
       seconds =  Time.now - start

@@ -2,9 +2,7 @@ class Igcfile < ActiveRecord::Base
   has_many :igcpoint, :dependent => :destroy
   has_many :windpoint, :dependent => :destroy
 
-
   require 'ruby-debug'
-
 
   attr_accessor :objects
 
@@ -92,7 +90,7 @@ class Igcfile < ActiveRecord::Base
 
   end
 
-  def import()
+  def Igcfile.import(path,objects)
     #puts 'import'
 
     save_obj=Hash.new
@@ -101,8 +99,8 @@ class Igcfile < ActiveRecord::Base
     counter=0
     time=0
 
-    #puts "opening file " + self.path
-    fp = File.open(self.path, "r")
+    #puts "opening file " + path
+    fp = File.open(path, "r")
     contents = fp.read
     fp.close()
 
@@ -194,7 +192,7 @@ class Igcfile < ActiveRecord::Base
           max=0
           may=0
           avg_cnt=0
-          self.objects.reverse_each {|item|
+          objects.reverse_each {|item|
             break if item[:seq_secs] < obj[:seq_secs]-30
             avg_cnt+=1
             max=max+item[:x]
@@ -211,7 +209,7 @@ class Igcfile < ActiveRecord::Base
 
           obj[:mams] = (((obj[:max] - save_obj[:max])**2 + (obj[:may] - save_obj[:may])**2)**0.5)/(obj[:seq_secs] - save_obj[:seq_secs]).to_i
 
-          self.objects << obj
+          objects << obj
 
         else
           obj[:ms]=0

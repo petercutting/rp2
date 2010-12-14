@@ -12,6 +12,30 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
   xml.Document {
 
     xml.Placemark {
+    xml.name("thermals")
+      xml.Style{
+      xml.LineStyle{
+        xml.color("af0000ff")
+        xml.width("2")
+      }
+    }
+      xml.Snippet(:maxLines => "9") {
+##        xml.cdata!(text)
+      }
+		xml.MultiGeometry {
+        xml.LineString {
+        xml.extrude("1")
+        xml.altitudeMode("relativeToGround")
+        xml.coordinates{
+          @windpoints.each do |o|
+            xml.text! "#{o[:dlon]},#{o[:dlat]},#{o[:dedt]/35} "
+          end
+        }
+        }
+      }
+    }
+
+    xml.Placemark {
     xml.name("dedt")
       xml.Style{
       xml.LineStyle{
