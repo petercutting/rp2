@@ -11,44 +11,28 @@ xml.instruct! :xml
 xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
   xml.Document {
 
-    xml.Placemark {
-    xml.name("thermals")
-      xml.Style{
-      xml.LineStyle{
-        xml.color("af0000ff")
-        xml.width("3")
-      }
-    }
+	xml.Placemark {
+		xml.name("thermals")
+		xml.Style {
+			xml.LineStyle {
+				xml.color("af0000ff")
+				xml.width("4")
+			}
+    	}
 
-		xml.MultiGeometry
-		{
+		xml.MultiGeometry {
 			@windpoints.each do |o|
-				xml.text! "#{o[:dlon]},#{o[:dlat]},#{o[:altitude]} "
-				xml.LineString
-				{
+				xml.LineString {
 					xml.extrude("2")
 					xml.altitudeMode("absolute")
-					xml.coordinates
-					{
-						@windpoints.each do |o|
-							xml.text! "#{o[:dlon]},#{o[:dlat]},#{o[:altitude]} "
-							xml.text! "#{o[:dlon2]},#{o[:dlat2]},#{o[:altitude2]} "
-						end
+					xml.coordinates {
+						xml.text! "#{o[:dlon]},#{o[:dlat]},#{o[:altitude]} "
+						xml.text! "#{o[:dlon2]},#{o[:dlat2]},#{o[:altitude2]} "
 					}
         		}
 			end
-          
-        xml.LineString {
-        xml.extrude("2")
-        xml.altitudeMode("absolute")
-        xml.coordinates{
-          @windpoints.each do |o|
-            xml.text! "#{o[:dlon]},#{o[:dlat]},#{o[:altitude]} "
-          end
-        }
-        }
-      }
-    }
+		}
+	}
 
     xml.Placemark {
     xml.name("dedt")
