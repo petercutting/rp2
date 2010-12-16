@@ -16,19 +16,34 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
       xml.Style{
       xml.LineStyle{
         xml.color("af0000ff")
-        xml.width("2")
+        xml.width("3")
       }
     }
-      xml.Snippet(:maxLines => "9") {
-##        xml.cdata!(text)
-      }
-		xml.MultiGeometry {
+
+		xml.MultiGeometry
+		{
+			@windpoints.each do |o|
+				xml.text! "#{o[:dlon]},#{o[:dlat]},#{o[:altitude]} "
+				xml.LineString
+				{
+					xml.extrude("2")
+					xml.altitudeMode("absolute")
+					xml.coordinates
+					{
+						@windpoints.each do |o|
+							xml.text! "#{o[:dlon]},#{o[:dlat]},#{o[:altitude]} "
+							xml.text! "#{o[:dlon2]},#{o[:dlat2]},#{o[:altitude2]} "
+						end
+					}
+        		}
+			end
+          
         xml.LineString {
-        xml.extrude("1")
-        xml.altitudeMode("relativeToGround")
+        xml.extrude("2")
+        xml.altitudeMode("absolute")
         xml.coordinates{
           @windpoints.each do |o|
-            xml.text! "#{o[:dlon]},#{o[:dlat]},#{o[:dedt]/35} "
+            xml.text! "#{o[:dlon]},#{o[:dlat]},#{o[:altitude]} "
           end
         }
         }

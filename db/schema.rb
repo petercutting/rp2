@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20101211140859) do
+ActiveRecord::Schema.define(:version => 20101216144811) do
 
   create_table "igcfiles", :force => true do |t|
     t.string   "filename"
@@ -41,12 +41,16 @@ ActiveRecord::Schema.define(:version => 20101211140859) do
 
   create_table "windpoints", :force => true do |t|
     t.integer "igcfile_id"
-    t.float   "flat"
-    t.float   "flon"
     t.float   "direction"
     t.integer "speed"
     t.integer "altitude"
     t.integer "seq_secs"
+    t.float   "dlon"
+    t.float   "dlat"
+    t.float   "dlon2"
+    t.float   "dlat2"
+    t.integer "altitude2"
+    t.integer "seq_secs2"
   end
 
   add_index "windpoints", ["igcfile_id"], :name => "index_windpoints_on_igcfile_id"

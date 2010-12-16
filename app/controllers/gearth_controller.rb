@@ -1,4 +1,5 @@
 class GearthController < ApplicationController
+  require 'ruby-debug'
 
   include Igc
   require 'Constants'
@@ -50,14 +51,34 @@ class GearthController < ApplicationController
     @bbox=["0","0","0","0"]
     @centre = params[:CENTRE].split(",") unless params[:CENTRE].nil?
     @bbox = params[:BBOX].split(",") unless params[:BBOX].nil?
+    #debugger
+    path=params[:path]
+    Igcfile.destroy_all( ["filename = ?",path.split("/").last])
 
-    @objects=[]
-    #igcfile = Igcfile.new(:path => path, :filename => path.split("/").last)
-    Igcfile.import(params[:path],@objects)
-    #Igc.import(params[:path],@objects)
-    igcfile = Igcfile.find_by_filename(params[:path].split("/").last)
-    puts "igcfile " + igcfile.inspect
-    windpoints = Windpoint.find(igcfile.id)
+    @objects = Igcfile.import(path)
+    begin
+      @igcfile = Igcfile.find_by_filename!(path.split("/").last) # ! enables a recordnotfound exception
+      rescue Exception => ex
+      puts ex.message
+      #puts ex.backtrace.join("\n")
+      @igcfile = Igcfile.new(:path => path, :filename => path.split("/").last)
+      @igcfile.save
+      Windpoint.find_thermals(@igcfile,@objects)
+    end
+
+    #@windpoints = @igcfile.windpoint.find_all()
+    @windpoints = Windpoint.find(:all,:order => "seq_secs DESC",:conditions => {
+      :igcfile_id  => @igcfile.id })
+
+
+    #    @objects=[]
+    #    #igcfile = Igcfile.new(:path => path, :filename => path.split("/").last)
+    #
+    #    Igcfile.import(params[:path],@objects)
+    #    #Igc.import(params[:path],@objects)
+    #    igcfile = Igcfile.find_by_filename(params[:path].split("/").last)
+    #    puts "igcfile " + igcfile.inspect
+    #    windpoints = Windpoint.find(igcfile.id)
 
     respond_to do |format|
       #format.html # index.html.erb
@@ -65,8 +86,6 @@ class GearthController < ApplicationController
     end
   end
 
-
-  #################
 
   def index
     puts 'index ' + params[:CENTRE].inspect
