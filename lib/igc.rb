@@ -1,12 +1,5 @@
 module Igc
 
-  RAD_PER_DEG = 0.017453293  #  PI/180
-  RADIUS = 6371 * 1000
-  GRAV_CONST = 9.81
-  GLIDER_MASS = 450
-
-
-
 
   def Igc.import_igcfile(path,objects)
 
@@ -162,7 +155,7 @@ module Igc
 
     polar_sink.clear
 
-     (0..80).each {|speed|                                                       # meters per second
+     (0..150).each {|speed|                                                       # meters per second
       x = polar_speed_in_ms.find_all{|item| item >= speed }.first
       x = polar_speed_in_ms.find_all{|item| item <= speed }.last if x.nil?
       polar_sink << polar_sink_in_ms[ polar_speed_in_ms.index(x) ]

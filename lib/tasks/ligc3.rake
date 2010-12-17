@@ -2,6 +2,7 @@ desc "Loads IGC files from specified directory (or .)"
 
 # rake ligc3[.]
 # rake ligc3[public/data]
+# rake ligc3["C:/Documents and Settings/Peter Cutting/My Documents/soaring/logs/IGC/RST/IGC_files_2009-09-30"]
 
 task :ligc3, [:dir] => :environment do |t, args|
   args.with_defaults(:dir => "public/data")
@@ -34,7 +35,7 @@ task :ligc3, [:dir] => :environment do |t, args|
 
     def WalkDirs(path)
       Find.find(path) do |entry|
-        if File.file?(entry) and entry.to_s.downcase.match('.igc')
+        if File.file?(entry) and entry.to_s.downcase.match('.igc$')
           #puts entry
           process_igcfile(entry)
         end
@@ -44,6 +45,7 @@ task :ligc3, [:dir] => :environment do |t, args|
 
     def process_igcfile(path)
       start = Time.now
+      #puts "processing " + path
       num_recs=1 # to prevent divide by zero
 
       begin
@@ -57,11 +59,11 @@ task :ligc3, [:dir] => :environment do |t, args|
 
       #puts igcfile.inspect
       objects=[]
-      Igcfile.import(path,igcfile.objects)
-      igcfile.find_thermals()
+      objects = Igcfile.import(path)
+      Windpoint.find_thermals(igcfile,objects)
 
-      seconds =  Time.now - start
-      puts path.to_s + ' ' + igcfile.objects.count.to_s + ' ' + (igcfile.objects.count/seconds).to_i.to_s
+      seconds = Time.now - start
+      puts path.split("/").last + ' ' + objects.count.to_s + ' ' + (objects.count/seconds).to_i.to_s
       STDOUT.flush
 
     end

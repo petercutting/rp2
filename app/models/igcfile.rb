@@ -33,7 +33,7 @@ class Igcfile < ActiveRecord::Base
     # I033638FXA3941ENL4247REX        an I record defines B record extensions
     b_extensions2 = Hash.new
     contents.each_line do |line|
-      a=line.unpack('a1a2a7a7a7a7a7a7a7') # hopefully enough
+      a=line.unpack('a1a2a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7') # hopefully enough
       if a[0]=='A'
         next
       end
@@ -53,11 +53,11 @@ class Igcfile < ActiveRecord::Base
     end
 
     if b_extensions2.length == 0
-      puts 'No I record'
+      #puts 'No I record'
     end
 
     if b_extensions2['ENL'].nil?
-      puts 'No ENL in I record'
+      #puts 'No ENL in I record'
     else
       #puts b_extensions2['ENL'].inspect
     end
@@ -74,12 +74,17 @@ class Igcfile < ActiveRecord::Base
         # time B0915235535648N01340869EA-006900049000
         h,m,s = a[1].scan(%r{(\d{2})(\d{2})(\d{2})}).flatten
         time = h.to_i * 3600 + m.to_i * 60  + s.to_i
+        #puts a[1].to_s
 
         # enl
         if hv=b_extensions2['ENL']
           enl=line[hv[:start].to_i..hv[:finnish].to_i]
         else
           enl='0'
+        end
+
+        if a[2].match("0000000N")
+          next
         end
 
         #lat
@@ -103,11 +108,23 @@ class Igcfile < ActiveRecord::Base
           :dlat => dlat, :dlon => dlon,:x => x, :y => y}
 
         if not save_obj.empty?
+          # ignore duplicate records (It happens!)
+          if obj[:seq_secs] == save_obj[:seq_secs]
+            next
+          end
+
           #speed
           obj[:ms] = (((obj[:x] - save_obj[:x])**2 + (obj[:y] - save_obj[:y])**2)**0.5)/(obj[:seq_secs] - save_obj[:seq_secs])
-
+          #debugger
           # energy change
           #obj[:pe] = Constants::GLIDER_MASS * Constants::GRAV_CONST * (obj[:baro_alt] )
+          #puts obj[:seq_secs]
+          #          if obj[:seq_secs]=39905
+          #            debugger
+          #          end
+          if obj[:ms]>150
+            debugger
+          end
           obj[:pe] = Constants::GLIDER_MASS * Constants::GRAV_CONST * (obj[:baro_alt] + $polar_sink[obj[:ms]] * (obj[:seq_secs] - save_obj[:seq_secs]))
           obj[:ke] = 0.5 * Constants::GLIDER_MASS * (obj[:ms])**2             # should compensate speed for wind component here
 
@@ -147,6 +164,7 @@ class Igcfile < ActiveRecord::Base
         save_obj=obj
       end
     end
+    #puts "count " + objects.count.to_s
     objects
   end
 
