@@ -15,8 +15,8 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
 		xml.name("thermals")
 		xml.Style {
 			xml.LineStyle {
-				xml.color("af0000ff")
-				xml.width("4")
+				xml.color("afff0000")
+				xml.width("8")
 			}
     	}
 
@@ -84,7 +84,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
     }
 
     xml.Placemark {
-    xml.name("route")
+    xml.name("track")
       xml.Style{
       xml.LineStyle{
         xml.color("ffffffff")

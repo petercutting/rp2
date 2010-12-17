@@ -118,7 +118,7 @@ class Igcfile < ActiveRecord::Base
           may=0
           avg_cnt=0
           objects.reverse_each {|item|
-            break if item[:seq_secs] < obj[:seq_secs]-30
+            break if item[:seq_secs] < obj[:seq_secs]-25
             avg_cnt+=1
             max=max+item[:x]
             may=may+item[:y]

@@ -5,18 +5,23 @@ class Windpoint < ActiveRecord::Base
 
     start_of_therm=0
     state=Constants::NOT_IN_THERMAL
-    thermal_start={}            # must be declared before case
+    thermal_start=objects[0]            # must be declared before case
+    thermal_end=objects[0]              # must be declared before case
+
+    mams=24
 
     objects.each_with_index do |object,index|
 
       case state
+
       when Constants::NOT_IN_THERMAL
-        if object[:mams]<20
+        if object[:mams]<mams
           state=Constants::ENTER_THERMAL
           thermal_start=object.dup
         end
+
       when Constants::ENTER_THERMAL
-        if object[:mams]<20
+        if object[:mams]<mams
 
           #debugger
           #puts "thermal_start " + thermal_start.inspect
@@ -24,22 +29,33 @@ class Windpoint < ActiveRecord::Base
         else
           state=Constants::NOT_IN_THERMAL
         end
+
       when Constants::IN_THERMAL
-        if object[:mams]<20
+        if object[:mams]<mams
           state=Constants::IN_THERMAL
         else
           state=Constants::LEAVE_THERMAL
         end
+
       when Constants::LEAVE_THERMAL
-        if object[:seq_secs]-thermal_start[:seq_secs]>100
+        if object[:seq_secs]-thermal_start[:seq_secs]>120
           #puts "thermal_start2 " + thermal_start.inspect
-          puts "thermal start at " + thermal_start.inspect
+
+          # go back 30 secs for end of thermal
+          objects[1..index].reverse_each {|item|
+            if item[:seq_secs]<object[:seq_secs]-30
+              thermal_end=item.dup
+              break
+            end
+          }
+
           w = Windpoint.new(:igcfile_id => igcfile.id,
-          :altitude => thermal_start[:baro_alt], :dlat => thermal_start[:dlat], :dlon => thermal_start[:dlon], :seq_secs => thermal_start[:seq_secs],
-          :altitude2 => object[:baro_alt], :dlat2 => object[:dlat], :dlon2 => object[:dlon], :seq_secs2 => object[:seq_secs])
+                            :altitude => thermal_start[:baro_alt]+300, :dlat => thermal_start[:dlat], :dlon => thermal_start[:dlon], :seq_secs => thermal_start[:seq_secs],
+                            :altitude2 => thermal_end[:baro_alt]+300, :dlat2 => thermal_end[:dlat], :dlon2 => thermal_end[:dlon], :seq_secs2 => thermal_end[:seq_secs])
           w.save
         end
         state=Constants::NOT_IN_THERMAL
+
       else
         puts "You just making it up!"
       end
