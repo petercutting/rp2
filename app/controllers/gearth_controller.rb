@@ -46,17 +46,16 @@ class GearthController < ApplicationController
 
 
   def thermals
-    puts 'route ' + params[:path].inspect
+    puts 'thermals '
     @centre=["0","0"]
     @bbox=["0","0","0","0"]
     @centre = params[:CENTRE].split(",") unless params[:CENTRE].nil?
     @bbox = params[:BBOX].split(",") unless params[:BBOX].nil?
     #debugger
 
-    path=params[:path]
-    @igcfile = Igcfile.find_by_filename(path.split("/").last)
-    @windpoints = Windpoint.find(:all,:order => "seq_secs DESC",:conditions => {
-      :igcfile_id  => @igcfile.id })
+    #path=params[:path]
+    #@igcfile = Igcfile.find_by_filename(path.split("/").last)
+    @windpoints = Windpoint.find(:all,:order => "seq_secs DESC" )
 
     respond_to do |format|
       #format.html # index.html.erb

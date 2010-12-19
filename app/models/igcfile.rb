@@ -28,7 +28,7 @@ class Igcfile < ActiveRecord::Base
     fp = File.open(path, "r")
     contents = fp.read
     fp.close()
-
+    #debugger
     # get I record
     # I033638FXA3941ENL4247REX        an I record defines B record extensions
     b_extensions2 = Hash.new
@@ -62,7 +62,15 @@ class Igcfile < ActiveRecord::Base
       #puts b_extensions2['ENL'].inspect
     end
 
+#    contents.each_byte {|x|
+#      puts x.to_s + " " + x.to_i.to_s
+#    }
+
     contents.each_line do |line|
+      #puts line +"XX"
+#      if line.match("B1216027500439")
+#        debugger
+#      end
       # 0(1)=rec, 1(6)=time, 2(8)=lat, 3(9)=lon, 4(1)=validity, 5(5)=baro_alt, 6(5)=gps_alt
       # optional see Irec  7(3)=fix_accuracy, 8(2)=num_satelites, 9(3)=enl
 
@@ -83,9 +91,9 @@ class Igcfile < ActiveRecord::Base
           enl='0'
         end
 
-        if a[2].match("0000000N")
-          next
-        end
+        #        if a[2].match("0000000N")
+        #          next
+        #        end
 
         #lat
         dd,mm,mmm,ns = a[2].scan(%r{(\d{2})(\d{2})(\d{3})(\w{1})}).flatten    #Latitude DDMMMMMN Valid characters N, S, 0-9
@@ -110,21 +118,20 @@ class Igcfile < ActiveRecord::Base
         if not save_obj.empty?
           # ignore duplicate records (It happens!)
           if obj[:seq_secs] == save_obj[:seq_secs]
+            puts "ignore " + line
             next
           end
 
           #speed
           obj[:ms] = (((obj[:x] - save_obj[:x])**2 + (obj[:y] - save_obj[:y])**2)**0.5)/(obj[:seq_secs] - save_obj[:seq_secs])
-          #debugger
+
+          # discard any crazy values (which happen!)
+          if obj[:ms].abs>150
+            next
+          end
+
           # energy change
           #obj[:pe] = Constants::GLIDER_MASS * Constants::GRAV_CONST * (obj[:baro_alt] )
-          #puts obj[:seq_secs]
-          #          if obj[:seq_secs]=39905
-          #            debugger
-          #          end
-          if obj[:ms]>150
-            debugger
-          end
           obj[:pe] = Constants::GLIDER_MASS * Constants::GRAV_CONST * (obj[:baro_alt] + $polar_sink[obj[:ms]] * (obj[:seq_secs] - save_obj[:seq_secs]))
           obj[:ke] = 0.5 * Constants::GLIDER_MASS * (obj[:ms])**2             # should compensate speed for wind component here
 

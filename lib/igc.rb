@@ -92,6 +92,11 @@ module Igc
           #speed
           obj[:ms] = (((obj[:x] - save_obj[:x])**2 + (obj[:y] - save_obj[:y])**2)**0.5)/(obj[:seq_secs] - save_obj[:seq_secs])
 
+          # discard any crazy values (which happen!)
+          if obj[:ms]>150
+            next
+          end
+
           # energy change
           #obj[:pe] = Constants::GLIDER_MASS * Constants::GRAV_CONST * (obj[:baro_alt] )
           obj[:pe] = GLIDER_MASS * GRAV_CONST * (obj[:baro_alt] + $polar_sink[obj[:ms]] * (obj[:seq_secs] - save_obj[:seq_secs]))

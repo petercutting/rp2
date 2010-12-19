@@ -3,6 +3,7 @@ desc "Loads IGC files from specified directory (or .)"
 # rake ligc3[.]
 # rake ligc3[public/data]
 # rake ligc3["C:/Documents and Settings/Peter Cutting/My Documents/soaring/logs/IGC/RST/IGC_files_2009-09-30"]
+# rake ligc3["C:/Documents and Settings/Peter Cutting/My Documents/soaring/logs/IGC/RST/test"]
 
 task :ligc3, [:dir] => :environment do |t, args|
   args.with_defaults(:dir => "public/data")
