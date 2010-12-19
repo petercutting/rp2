@@ -19,8 +19,6 @@ class Igcfile < ActiveRecord::Base
     save_obj=Hash.new
     num_recs=1 # to prevent divide by zero
     counter=0
-    counter=0
-    time=0
 
     objects=[]
 
@@ -81,7 +79,7 @@ class Igcfile < ActiveRecord::Base
 
         # time B0915235535648N01340869EA-006900049000
         h,m,s = a[1].scan(%r{(\d{2})(\d{2})(\d{2})}).flatten
-        time = h.to_i * 3600 + m.to_i * 60  + s.to_i
+        seq_secs = h.to_i * 3600 + m.to_i * 60  + s.to_i
         #puts a[1].to_s
 
         # enl
@@ -112,13 +110,13 @@ class Igcfile < ActiveRecord::Base
         y = (Constants::RADIUS * Math.cos(rlat) * Math.sin(rlon)).to_i
 
         obj = { :lat_lon => a[2]+','+a[3], :baro_alt => a[5].to_i, :gps_alt => a[6].to_i,
-          :enl => enl.to_i, :seq_secs => time, :rlat => rlat, :rlon => rlon,
+          :enl => enl.to_i, :seq_secs => seq_secs, :rlat => rlat, :rlon => rlon,
           :dlat => dlat, :dlon => dlon,:x => x, :y => y}
 
         if not save_obj.empty?
           # ignore duplicate records (It happens!)
           if obj[:seq_secs] == save_obj[:seq_secs]
-            puts "ignore " + line
+            #puts "dup time " + line
             next
           end
 
@@ -126,7 +124,9 @@ class Igcfile < ActiveRecord::Base
           obj[:ms] = (((obj[:x] - save_obj[:x])**2 + (obj[:y] - save_obj[:y])**2)**0.5)/(obj[:seq_secs] - save_obj[:seq_secs])
 
           # discard any crazy values (which happen!)
-          if obj[:ms].abs>150
+          if obj[:ms].abs==0.0 || obj[:ms].abs>150
+            save_obj={}
+            #puts "ignore " + line
             next
           end
 
@@ -168,7 +168,7 @@ class Igcfile < ActiveRecord::Base
           obj[:may]=obj[:y]
         end
 
-        save_obj=obj
+        save_obj=obj.dup
       end
     end
     #puts "count " + objects.count.to_s
