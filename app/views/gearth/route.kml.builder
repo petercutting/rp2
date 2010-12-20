@@ -11,6 +11,30 @@ xml.instruct! :xml
 xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
   xml.Document {
 
+    xml.Placemark {
+    xml.name("moving average pos")
+      xml.Style{
+      xml.LineStyle{
+        xml.color("afffff00")
+        xml.width("3")
+      }
+    }
+      xml.Snippet(:maxLines => "9") {
+##        xml.cdata!(text)
+      }
+		xml.MultiGeometry {
+        xml.LineString {
+        xml.extrude("0")
+        xml.altitudeMode("absolute")
+        xml.coordinates{
+          @objects.each do |o|
+            xml.text! "#{o[:malon]},#{o[:malat]},#{o[:baro_alt]} "
+          end
+        }
+        }
+      }
+    }
+
 	xml.Placemark {
 		xml.name("thermals")
 		xml.Style {
@@ -60,7 +84,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
 
 
     xml.Placemark {
-    xml.name("mams")
+    xml.name("moving average ms")
       xml.Style{
       xml.LineStyle{
         xml.color("af00ff00")

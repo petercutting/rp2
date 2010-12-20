@@ -60,15 +60,15 @@ class Igcfile < ActiveRecord::Base
       #puts b_extensions2['ENL'].inspect
     end
 
-#    contents.each_byte {|x|
-#      puts x.to_s + " " + x.to_i.to_s
-#    }
+    #    contents.each_byte {|x|
+    #      puts x.to_s + " " + x.to_i.to_s
+    #    }
 
     contents.each_line do |line|
       #puts line +"XX"
-#      if line.match("B1216027500439")
-#        debugger
-#      end
+      #      if line.match("B1216027500439")
+      #        debugger
+      #      end
       # 0(1)=rec, 1(6)=time, 2(8)=lat, 3(9)=lon, 4(1)=validity, 5(5)=baro_alt, 6(5)=gps_alt
       # optional see Irec  7(3)=fix_accuracy, 8(2)=num_satelites, 9(3)=enl
 
@@ -108,10 +108,11 @@ class Igcfile < ActiveRecord::Base
         # cartesian
         x = (Constants::RADIUS * Math.cos(rlat) * Math.cos(rlon)).to_i
         y = (Constants::RADIUS * Math.cos(rlat) * Math.sin(rlon)).to_i
+        z = ((Constants::RADIUS ) * Math.sin(rlat))
 
         obj = { :lat_lon => a[2]+','+a[3], :baro_alt => a[5].to_i, :gps_alt => a[6].to_i,
           :enl => enl.to_i, :seq_secs => seq_secs, :rlat => rlat, :rlon => rlon,
-          :dlat => dlat, :dlon => dlon,:x => x, :y => y}
+          :dlat => dlat, :dlon => dlon,:x => x, :y => y, :z => z}
 
         if not save_obj.empty?
           # ignore duplicate records (It happens!)
@@ -155,6 +156,16 @@ class Igcfile < ActiveRecord::Base
             obj[:max]=obj[:x]
             obj[:may]=obj[:y]
           end
+
+          # convert the averaged cartesian back into decimal coors
+          #          x = (Constants::RADIUS * Math.cos(rlat) * Math.cos(rlon)).to_i
+          #          y = (Constants::RADIUS * Math.cos(rlat) * Math.sin(rlon)).to_i
+          #          z = (Constants::RADIUS * Math.sin(rlat)).to_i
+
+          obj[:malat] = (Math.asin(obj[:z] / Constants::RADIUS) ) /Constants::RAD_PER_DEG
+          obj[:malon] = (Math.atan2(obj[:may], obj[:max]) ) /Constants::RAD_PER_DEG
+          #obj[:malon] = (Math.atan2(obj[:y], obj[:x]) ) /Constants::RAD_PER_DEG
+          #obj[:malat]=3.0
 
           obj[:mams] = (((obj[:max] - save_obj[:max])**2 + (obj[:may] - save_obj[:may])**2)**0.5)/(obj[:seq_secs] - save_obj[:seq_secs]).to_i
 
