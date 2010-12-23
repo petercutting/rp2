@@ -100,7 +100,7 @@ class Igcfile < ActiveRecord::Base
         dlon = ((ddd.to_f + mm.to_f/60 + (mmm.to_f/1000)/60))
         dlon = - dlon unless ew=='E'
         rlon = dlon*Constants::RAD_PER_DEG
-
+#debugger
         # cartesian
         x = (Constants::RADIUS * Math.cos(rlat) * Math.cos(rlon)).to_i
         y = (Constants::RADIUS * Math.cos(rlat) * Math.sin(rlon)).to_i
@@ -137,31 +137,29 @@ class Igcfile < ActiveRecord::Base
           #moving average speed in 2 dimensions
           max=0
           may=0
+          maz=0
           avg_cnt=0
           objects.reverse_each {|item|
-            break if item[:seq_secs] < obj[:seq_secs]-25
+            break if item[:seq_secs] < obj[:seq_secs]-30
             avg_cnt+=1
             max=max+item[:x]
             may=may+item[:y]
+            maz=maz+item[:z]
           }
 
           if avg_cnt > 0
             obj[:max]=(max/avg_cnt).to_i
             obj[:may]=(may/avg_cnt).to_i
+            obj[:maz]=(maz/avg_cnt).to_i
           else
             obj[:max]=obj[:x]
             obj[:may]=obj[:y]
+            obj[:maz]=obj[:z]
           end
 
-          # convert the averaged cartesian back into decimal coors
-          #          x = (Constants::RADIUS * Math.cos(rlat) * Math.cos(rlon)).to_i
-          #          y = (Constants::RADIUS * Math.cos(rlat) * Math.sin(rlon)).to_i
-          #          z = (Constants::RADIUS * Math.sin(rlat)).to_i
-
-          obj[:malat] = (Math.asin(obj[:z] / Constants::RADIUS) ) /Constants::RAD_PER_DEG
+# convert moving average back to decimal coordinates
+          obj[:malat] = (Math.asin(obj[:maz].to_f / Constants::RADIUS) ) /Constants::RAD_PER_DEG
           obj[:malon] = (Math.atan2(obj[:may], obj[:max]) ) /Constants::RAD_PER_DEG
-          #obj[:malon] = (Math.atan2(obj[:y], obj[:x]) ) /Constants::RAD_PER_DEG
-          #obj[:malat]=3.0
 
           obj[:mams] = (((obj[:max] - save_obj[:max])**2 + (obj[:may] - save_obj[:may])**2)**0.5)/(obj[:seq_secs] - save_obj[:seq_secs]).to_i
 
@@ -173,6 +171,7 @@ class Igcfile < ActiveRecord::Base
           obj[:ke]=0
           obj[:max]=obj[:x]
           obj[:may]=obj[:y]
+          obj[:maz]=obj[:z]
         end
 
         save_obj=obj.dup

@@ -8,7 +8,7 @@ class Windpoint < ActiveRecord::Base
     thermal_start=objects[0]            # must be declared before case
     thermal_end=objects[0]              # must be declared before case
 
-    mams=24
+    mams=17
 
     objects.each_with_index do |object,index|
 
@@ -50,8 +50,8 @@ class Windpoint < ActiveRecord::Base
           }
 
           w = Windpoint.new(:igcfile_id => igcfile.id,
-                            :altitude => thermal_start[:baro_alt]+300, :dlat => thermal_start[:dlat], :dlon => thermal_start[:dlon], :seq_secs => thermal_start[:seq_secs],
-                            :altitude2 => thermal_end[:baro_alt]+300, :dlat2 => thermal_end[:dlat], :dlon2 => thermal_end[:dlon], :seq_secs2 => thermal_end[:seq_secs])
+                            :altitude => thermal_start[:baro_alt]+300, :dlat => thermal_start[:malat], :dlon => thermal_start[:malon], :seq_secs => thermal_start[:seq_secs],
+                            :altitude2 => thermal_end[:baro_alt]+300, :dlat2 => thermal_end[:malat], :dlon2 => thermal_end[:malon], :seq_secs2 => thermal_end[:seq_secs])
           w.save
         end
         state=Constants::NOT_IN_THERMAL
