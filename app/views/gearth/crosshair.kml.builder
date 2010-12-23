@@ -30,9 +30,24 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
           }
         }
       }
+      		xml.MultiGeometry {
+
+      xml.LineString {
+        xml.name("IGC data")
+        xml.extrude("1")
+        xml.altitudeMode("relativeToGround")
+        xml.coordinates{
+            xml.text! "#{@bbox[0]}, #{@bbox[1]},100 "
+            xml.text! "#{@bbox[1]}, #{@bbox[2]},100 "
+            xml.text! "#{@bbox[2]}, #{@bbox[3]},100 "
+            xml.text! "#{@bbox[3]}, #{@bbox[0]},100 "
+        }
+        }
+
       xml.Point {
         xml.coordinates("#{@centre[0]}, #{@centre[1]}");
       }
+    }
     }
   }
 end
