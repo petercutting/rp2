@@ -89,10 +89,6 @@ class Igcfile < ActiveRecord::Base
           enl='0'
         end
 
-        #        if a[2].match("0000000N")
-        #          next
-        #        end
-
         #lat
         dd,mm,mmm,ns = a[2].scan(%r{(\d{2})(\d{2})(\d{3})(\w{1})}).flatten    #Latitude DDMMMMMN Valid characters N, S, 0-9
         dlat = ((dd.to_f + mm.to_f/60 + (mmm.to_f/1000)/60))
