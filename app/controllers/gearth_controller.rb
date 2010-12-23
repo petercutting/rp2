@@ -88,16 +88,6 @@ class GearthController < ApplicationController
     @windpoints = Windpoint.find(:all,:order => "seq_secs DESC",:conditions => {
       :igcfile_id  => @igcfile.id })
 
-
-    #    @objects=[]
-    #    #igcfile = Igcfile.new(:path => path, :filename => path.split("/").last)
-    #
-    #    Igcfile.import(params[:path],@objects)
-    #    #Igc.import(params[:path],@objects)
-    #    igcfile = Igcfile.find_by_filename(params[:path].split("/").last)
-    #    puts "igcfile " + igcfile.inspect
-    #    windpoints = Windpoint.find(igcfile.id)
-
     respond_to do |format|
       #format.html # index.html.erb
       format.kml  # index.kml.builder

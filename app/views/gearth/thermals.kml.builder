@@ -15,8 +15,8 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
 		xml.name("thermals")
 		xml.Style {
 			xml.LineStyle {
-				xml.color("afff0000")
-				xml.width("4")
+				xml.color("ff0000ff")
+				xml.width("3")
 			}
     	}
 
