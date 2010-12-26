@@ -11,6 +11,35 @@ xml.instruct! :xml
 xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
   xml.Document {
 
+
+    xml.Placemark {
+    xml.name("wind directions")
+      xml.Style{
+      xml.LineStyle{
+        xml.color("afffff00")
+        xml.width("3")
+      }
+    }
+      xml.Snippet(:maxLines => "9") {
+##        xml.cdata!(text)
+      }
+      		xml.MultiGeometry {
+
+      xml.LineString {
+        xml.extrude("0")
+        xml.altitudeMode("clampToGround")
+        xml.coordinates{
+
+          @windpoints.each do |o|
+            xml.text! "#{o[:dlon_centred]},#{o[:dlat_centred]} "
+            xml.text! "#{o[:dlon2_centred]},#{o[:dlat2_centred]} "
+            xml.text! "#{o[:dlon_centred]},#{o[:dlat_centred]} "
+          end
+        }
+        }
+      }
+    }
+
     xml.Placemark {
     xml.name("moving average pos")
       xml.Style{

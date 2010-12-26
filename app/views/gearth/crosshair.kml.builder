@@ -10,6 +10,34 @@ Y Max: #{@bbox[3]}
 xml.instruct! :xml
 xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
   xml.Document {
+
+    xml.Placemark {
+    xml.name("bbox")
+      xml.Style{
+      xml.LineStyle{
+        xml.color("afffff00")
+        xml.width("3")
+      }
+    }
+      xml.Snippet(:maxLines => "9") {
+##        xml.cdata!(text)
+      }
+      		xml.MultiGeometry {
+
+      xml.LineString {
+        xml.extrude("0")
+        xml.altitudeMode("clampToGround")
+        xml.coordinates{
+            xml.text! "#{@bbox[0]},#{@bbox[3]},1000 "
+            xml.text! "#{@bbox[2]},#{@bbox[1]},1000 "
+            xml.text! "#{@bbox[0]},#{@bbox[1]},1000 "
+            xml.text! "#{@bbox[2]},#{@bbox[3]},1000 "
+        }
+        }
+      }
+    }
+
+
     xml.Placemark {
       xml.Snippet(:maxLines => "9") {
         xml.cdata!(text)
@@ -30,24 +58,10 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
           }
         }
       }
-      		xml.MultiGeometry {
-
-      xml.LineString {
-        xml.name("IGC data")
-        xml.extrude("1")
-        xml.altitudeMode("relativeToGround")
-        xml.coordinates{
-            xml.text! "#{@bbox[0]}, #{@bbox[1]},100 "
-            xml.text! "#{@bbox[1]}, #{@bbox[2]},100 "
-            xml.text! "#{@bbox[2]}, #{@bbox[3]},100 "
-            xml.text! "#{@bbox[3]}, #{@bbox[0]},100 "
-        }
-        }
 
       xml.Point {
         xml.coordinates("#{@centre[0]}, #{@centre[1]}");
       }
-    }
     }
   }
 end
