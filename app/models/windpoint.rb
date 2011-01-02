@@ -49,10 +49,32 @@ class Windpoint < ActiveRecord::Base
             end
           }
 
-          w = Windpoint.new(:igcfile_id => igcfile.id,
-                            :altitude => thermal_start[:baro_alt]+300, :dlat => thermal_start[:malat], :dlon => thermal_start[:malon], :seq_secs => thermal_start[:seq_secs],
-                            :altitude2 => thermal_end[:baro_alt]+300, :dlat2 => thermal_end[:malat], :dlon2 => thermal_end[:malon], :seq_secs2 => thermal_end[:seq_secs])
-          w.save
+          lon1 = thermal_start[:malon]*Constants::RAD_PER_DEG
+          lon2 = thermal_end[:malon]*Constants::RAD_PER_DEG
+          lat1 = thermal_start[:malat]*Constants::RAD_PER_DEG
+          lat2 = thermal_end[:malat]*Constants::RAD_PER_DEG
+
+          d=(2*Math.asin(((Math.sin((lat1-lat2)/2))**2 + Math.cos(lat1)*Math.cos(lat2)*(Math.sin((lon1-lon2)/2))**2)**0.5)).abs
+          if Math.sin(lon2-lon1)<0
+            dir=Math.acos((Math.sin(lat2)-Math.sin(lat1)*Math.cos(d))/(Math.sin(d)*Math.cos(lat1)))
+          else
+            dir=2*Constants::PI-Math.acos((Math.sin(lat2)-Math.sin(lat1)*Math.cos(d))/(Math.sin(d)*Math.cos(lat1)))
+          end
+
+          speed = d*Constants::RADIUS / (thermal_start[:seq_secs] - thermal_end[:seq_secs])
+          #climb = 0.0
+          climb = (thermal_end[:baro_alt] - thermal_start[:baro_alt]).to_f/(thermal_end[:seq_secs] - thermal_start[:seq_secs]).to_f
+
+          if climb > 0.2
+            puts climb
+            w = Windpoint.new(:igcfile_id => igcfile.id,:speed => speed.to_i, :direction => dir, :climb => climb,
+                              :altitude => thermal_start[:baro_alt], :dlat => thermal_start[:malat],
+                              :dlon => thermal_start[:malon], :seq_secs => thermal_start[:seq_secs],
+                              :altitude2 => thermal_end[:baro_alt], :dlat2 => thermal_end[:malat],
+                              :dlon2 => thermal_end[:malon], :seq_secs2 => thermal_end[:seq_secs])
+            w.save
+          end
+
         end
         state=Constants::NOT_IN_THERMAL
 
