@@ -20,7 +20,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
       }
     }
       xml.Snippet(:maxLines => "9") {
-##        xml.cdata!(text)
+#        xml.cdata!(text)
       }
       		xml.MultiGeometry {
 

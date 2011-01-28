@@ -25,18 +25,19 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
       }
       		xml.MultiGeometry {
 
+      @windpoints.each do |o|
       xml.LineString {
         xml.extrude("0")
-        xml.altitudeMode("clampToGround")
+        xml.altitudeMode("absolute")
         xml.coordinates{
 
-          @windpoints.each do |o|
-            xml.text! "#{o[:dlon_centred]},#{o[:dlat_centred]} "
-            xml.text! "#{o[:dlon2_centred]},#{o[:dlat2_centred]} "
-            xml.text! "#{o[:dlon_centred]},#{o[:dlat_centred]} "
-          end
+            xml.text! "#{o[:dlon_centred]},#{o[:dlat_centred]},#{o[:altitude]} "
+            xml.text! "#{o[:dlon2_centred]},#{o[:dlat2_centred]},#{o[:altitude2]} "
+            xml.text! "#{o[:dlon_centred]},#{o[:dlat_centred]},#{o[:altitude]} "
         }
         }
+      end
+
       }
     }
 

@@ -45,17 +45,21 @@ task :ligc3, [:dir] => :environment do |t, args|
 
 
     def process_igcfile(path)
+
+      filename=path.split("/").last
+
       start = Time.now
       #puts "processing " + path
       num_recs=1 # to prevent divide by zero
 
       begin
-        #puts "deleting " + path.split("/").last
-        Igcfile.destroy_all( ["filename = ?",path.split("/").last])
+        #puts "deleting " + filename
+        Igcfile.destroy_all( ["filename = ?",filename])
         rescue
       end
 
-      igcfile = Igcfile.new(:path => path, :filename => path.split("/").last)
+      puts "SAVING " + filename
+      igcfile = Igcfile.new( :filename => filename, :path => path)
       igcfile.save
 
       #puts igcfile.inspect
@@ -64,7 +68,7 @@ task :ligc3, [:dir] => :environment do |t, args|
       Windpoint.find_thermals(igcfile,objects)
 
       seconds = Time.now - start
-      puts path.split("/").last + ' ' + objects.count.to_s + ' ' + (objects.count/seconds).to_i.to_s
+      puts filename + ' ' + objects.count.to_s + ' ' + (objects.count/seconds).to_i.to_s
       STDOUT.flush
 
     end

@@ -72,15 +72,19 @@ class GearthController < ApplicationController
     @bbox = params[:BBOX].split(",") unless params[:BBOX].nil?
     #debugger
     path=params[:path]
-    Igcfile.destroy_all( ["filename = ?",path.split("/").last])
+    filename=path.split("/").last
+
+#    Igcfile.destroy_all( ["filename = ?",filename])            # forces data reload
 
     @objects = Igcfile.import(path)
+
     begin
-      @igcfile = Igcfile.find_by_filename!(path.split("/").last) # ! enables a recordnotfound exception
+      @igcfile = Igcfile.find_by_filename!(filename) # ! enables a recordnotfound exception
       rescue Exception => ex
       puts ex.message
+      puts filename
       #puts ex.backtrace.join("\n")
-      @igcfile = Igcfile.new(:path => path, :filename => path.split("/").last)
+      @igcfile = Igcfile.new(:path => path, :filename => filename)
       @igcfile.save
       Windpoint.find_thermals(@igcfile,@objects)
     end
