@@ -26,7 +26,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
 
       xml.LineString {
         xml.extrude("0")
-        xml.altitudeMode("clampToGround")
+        xml.altitudeMode("relativeToGround")
         xml.coordinates{
             xml.text! "#{@bbox[0]},#{@bbox[3]},1000 "
             xml.text! "#{@bbox[2]},#{@bbox[1]},1000 "

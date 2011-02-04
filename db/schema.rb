@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110102183412) do
+ActiveRecord::Schema.define(:version => 20110204133152) do
 
   create_table "igcfiles", :force => true do |t|
     t.string   "filename"
@@ -18,6 +18,7 @@ ActiveRecord::Schema.define(:version => 20110102183412) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "path"
+    t.integer  "proc_version"
   end
 
   add_index "igcfiles", ["filename"], :name => "index_igcfiles_on_filename", :unique => true

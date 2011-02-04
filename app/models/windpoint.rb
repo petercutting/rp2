@@ -66,7 +66,7 @@ class Windpoint < ActiveRecord::Base
           climb = (thermal_end[:baro_alt] - thermal_start[:baro_alt]).to_f/(thermal_end[:seq_secs] - thermal_start[:seq_secs]).to_f
 
           if climb > 0.2
-            puts climb
+            print climb.to_s[0,3] + " "
             w = Windpoint.new(:igcfile_id => igcfile.id,:speed => speed.to_i, :direction => dir, :climb => climb,
                               :altitude => thermal_start[:baro_alt], :dlat => thermal_start[:malat],
                               :dlon => thermal_start[:malon], :seq_secs => thermal_start[:seq_secs],
@@ -116,7 +116,8 @@ class Windpoint < ActiveRecord::Base
     #      #          counter=0
     #      #        end
     #    end
+  puts ""
+end
 
-  end
 
 end
