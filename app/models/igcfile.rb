@@ -13,7 +13,39 @@ class Igcfile < ActiveRecord::Base
   end
 
 
-  def Igcfile.import(path)
+  def Igcfile.get(path)
+    begin
+      puts "Looking in DB for " + filename
+      @igcfile = Igcfile.find_by_filename!(filename) # ! enables a recordnotfound exception
+
+      if @igcfile.proc_version.to_i < Constants::PROC_VERSION.to_i
+        puts "Old version " + @igcfile.proc_version.to_s
+        raise ActiveRecord::RecordNotFound
+      end
+
+      rescue ActiveRecord::RecordNotFound => ex
+      #puts ex.message
+      #puts ex.backtrace.join("\n")
+      Igcfile.destroy_all( ["filename = ?",filename])
+      @igcfile = Igcfile.new(:path => path, :filename => filename, :proc_version => Constants::PROC_VERSION)
+      @igcfile.save
+
+      #        @windpoints = Windpoint.find(:all,:order => "seq_secs DESC",:conditions => {
+      #          :igcfile_id  => @igcfile.id })
+
+      rescue Exception => ex
+      puts "Generic " + ex.message
+    end
+
+      @objects = Igcfile.import(path)
+    Windpoint.find_thermals(@igcfile,@objects)
+
+    @igcfile
+  end
+
+
+
+  def Igcfile.import_file(path)
     #puts 'import'
 
     save_obj=Hash.new
@@ -100,7 +132,7 @@ class Igcfile < ActiveRecord::Base
         dlon = ((ddd.to_f + mm.to_f/60 + (mmm.to_f/1000)/60))
         dlon = - dlon unless ew=='E'
         rlon = dlon*Constants::RAD_PER_DEG
-#debugger
+        #debugger
         # cartesian
         x = (Constants::RADIUS * Math.cos(rlat) * Math.cos(rlon)).to_i
         y = (Constants::RADIUS * Math.cos(rlat) * Math.sin(rlon)).to_i
@@ -157,7 +189,7 @@ class Igcfile < ActiveRecord::Base
             obj[:maz]=obj[:z]
           end
 
-# convert moving average back to decimal coordinates
+          # convert moving average back to decimal coordinates
           obj[:malat] = (Math.asin(obj[:maz].to_f / Constants::RADIUS) ) /Constants::RAD_PER_DEG
           obj[:malon] = (Math.atan2(obj[:may], obj[:max]) ) /Constants::RAD_PER_DEG
 

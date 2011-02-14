@@ -62,6 +62,9 @@ task :ligc3, [:proc_version,:dir] => :environment do |t, args|
       #      end
 
       #debugger
+      @igcfile = Igcfile.get(path)
+
+
       begin
         puts "Looking in DB for " + filename
         @igcfile = Igcfile.find_by_filename!(filename) # ! enables a recordnotfound exception
@@ -78,7 +81,6 @@ task :ligc3, [:proc_version,:dir] => :environment do |t, args|
         @igcfile = Igcfile.new(:path => path, :filename => filename, :proc_version => Constants::PROC_VERSION)
         @igcfile.save
         @objects = Igcfile.import(path)
-        Windpoint.find_thermals(@igcfile,@objects)
 
 #        @windpoints = Windpoint.find(:all,:order => "seq_secs DESC",:conditions => {
 #          :igcfile_id  => @igcfile.id })
@@ -87,6 +89,8 @@ task :ligc3, [:proc_version,:dir] => :environment do |t, args|
         puts "Generic " + ex.message
 
       end
+
+      Windpoint.find_thermals(@igcfile,@objects)
 
       #      puts "SAVING " + filename
       #      igcfile = Igcfile.new( :filename => filename, :path => path)
