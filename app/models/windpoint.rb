@@ -44,7 +44,7 @@ class Windpoint < ActiveRecord::Base
           #puts "thermal_start2 " + thermal_start.inspect
 
           # go back 30 secs for end of thermal
-          objects[1..index].reverse_each {|item|
+          igcfile.objects[1..index].reverse_each {|item|
             if item[:seq_secs]<object[:seq_secs]-30
               thermal_end=item.dup
               break

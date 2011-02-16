@@ -74,20 +74,22 @@ class GearthController < ApplicationController
     path=params[:path]
     filename=path.split("/").last
 
-#    Igcfile.destroy_all( ["filename = ?",filename])            # forces data reload
+    #    Igcfile.destroy_all( ["filename = ?",filename])            # forces data reload
 
-    @objects = Igcfile.import(path)
+@igcfile = Igcfile.get(path,Constants::PROC_VERSION.to_i)
 
-    begin
-      @igcfile = Igcfile.find_by_filename!(filename) # ! enables a recordnotfound exception
-      rescue Exception => ex
-      puts ex.message
-      puts filename
-      #puts ex.backtrace.join("\n")
-      @igcfile = Igcfile.new(:path => path, :filename => filename)
-      @igcfile.save
-      Windpoint.find_thermals(@igcfile,@objects)
-    end
+#    begin
+#      @igcfile = Igcfile.find_by_filename!(filename) # ! enables a recordnotfound exception
+#      rescue Exception => ex
+#      puts ex.message
+#      puts filename
+#      #puts ex.backtrace.join("\n")
+#      @igcfile = Igcfile.new(:path => path, :filename => filename)
+#      @igcfile.save
+#    end
+#
+#    @igcfile.import_file(path)
+#    Windpoint.find_thermals(@igcfile)
 
     #@windpoints = @igcfile.windpoint.find_all()
     @windpoints = Windpoint.find(:all,:order => "seq_secs DESC",:conditions => {
@@ -145,9 +147,9 @@ class GearthController < ApplicationController
     end
   end
 
-# http://localhost/gearth/crosshair?BBOX=11.19125746392158,57.2508102878951,21.11411106554142,61.86448638182706&CENTRE=16.29523674992932,59.58649967679079
-# http://localhost/gearth/crosshair?BBOX=16.56258229262255,58.39636918768792,26.30095886892859,63.19376486212607&CENTRE=16.99764635180972,60.04039534660431]
-# http://localhost/gearth/route?path=public%2Fdata%2F074C3X62.IGC&BBOX=16.82113707817681,58.8239660179952,24.31766488558778,62.48755262212542&CENTRE=17.04949172377386,60.02571428479256
+  # http://localhost/gearth/crosshair?BBOX=11.19125746392158,57.2508102878951,21.11411106554142,61.86448638182706&CENTRE=16.29523674992932,59.58649967679079
+  # http://localhost/gearth/crosshair?BBOX=16.56258229262255,58.39636918768792,26.30095886892859,63.19376486212607&CENTRE=16.99764635180972,60.04039534660431]
+  # http://localhost/gearth/route?path=public%2Fdata%2F074C3X62.IGC&BBOX=16.82113707817681,58.8239660179952,24.31766488558778,62.48755262212542&CENTRE=17.04949172377386,60.02571428479256
 
   def crosshair
     puts params.inspect

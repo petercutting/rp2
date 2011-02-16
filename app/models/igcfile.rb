@@ -44,7 +44,6 @@ class Igcfile < ActiveRecord::Base
     end
 
     @igcfile.import_file(path)
-    Windpoint.find_thermals(@igcfile)
 
     @igcfile
   end
@@ -58,7 +57,7 @@ class Igcfile < ActiveRecord::Base
     num_recs=1 # to prevent divide by zero
     counter=0
 
-    objects=[]
+    self.objects=[]
 
     #puts "opening file " + path
     fp = File.open(path, "r")
@@ -201,7 +200,7 @@ class Igcfile < ActiveRecord::Base
 
           obj[:mams] = (((obj[:max] - save_obj[:max])**2 + (obj[:may] - save_obj[:may])**2)**0.5)/(obj[:seq_secs] - save_obj[:seq_secs]).to_i
 
-          objects << obj
+          self.objects << obj
 
         else
           obj[:ms]=0
@@ -216,7 +215,7 @@ class Igcfile < ActiveRecord::Base
       end
     end
     #puts "count " + objects.count.to_s
-    objects
+    #self.objects
   end
 
 end

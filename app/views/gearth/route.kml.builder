@@ -57,7 +57,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
         xml.extrude("0")
         xml.altitudeMode("absolute")
         xml.coordinates{
-          @objects.each do |o|
+          @igcfile.objects.each do |o|
             xml.text! "#{o[:malon]},#{o[:malat]},#{o[:baro_alt]} "
           end
         }
@@ -104,7 +104,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
         xml.extrude("1")
         xml.altitudeMode("relativeToGround")
         xml.coordinates{
-          @objects.each do |o|
+          @igcfile.objects.each do |o|
             xml.text! "#{o[:dlon]},#{o[:dlat]},#{o[:dedt]/35} "
           end
         }
@@ -129,7 +129,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
         xml.altitudeMode("relativeToGround")
         xml.extrude("1")
         xml.coordinates{
-          @objects.each do |o|
+          @igcfile.objects.each do |o|
             xml.text! "#{o[:dlon]},#{o[:dlat]},#{o[:mams]*20} "
           end
         }
@@ -152,7 +152,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
         xml.LineString {
         xml.altitudeMode("absolute")
         xml.coordinates{
-          @objects.each do |o|
+          @igcfile.objects.each do |o|
             xml.text! "#{o[:dlon]},#{o[:dlat]},#{o[:baro_alt]} "
           end
         }
