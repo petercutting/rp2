@@ -5,6 +5,7 @@ class Igcfile < ActiveRecord::Base
   require 'ruby-debug'
 
   attr_accessor :objects
+  attr_accessor :wind_points
 
 
   def after_initialize
@@ -13,12 +14,17 @@ class Igcfile < ActiveRecord::Base
   end
 
 
-  def Igcfile.get(path)
+
+  def Igcfile.get(path,proc_version)
+    #debugger
+
     begin
+            filename=path.split("/").last
+
       puts "Looking in DB for " + filename
       @igcfile = Igcfile.find_by_filename!(filename) # ! enables a recordnotfound exception
 
-      if @igcfile.proc_version.to_i < Constants::PROC_VERSION.to_i
+      if @igcfile.proc_version.to_i < proc_version
         puts "Old version " + @igcfile.proc_version.to_s
         raise ActiveRecord::RecordNotFound
       end
@@ -27,7 +33,7 @@ class Igcfile < ActiveRecord::Base
       #puts ex.message
       #puts ex.backtrace.join("\n")
       Igcfile.destroy_all( ["filename = ?",filename])
-      @igcfile = Igcfile.new(:path => path, :filename => filename, :proc_version => Constants::PROC_VERSION)
+      @igcfile = Igcfile.new(:path => path, :filename => filename, :proc_version => proc_version)
       @igcfile.save
 
       #        @windpoints = Windpoint.find(:all,:order => "seq_secs DESC",:conditions => {
@@ -37,15 +43,15 @@ class Igcfile < ActiveRecord::Base
       puts "Generic " + ex.message
     end
 
-      @objects = Igcfile.import(path)
-    Windpoint.find_thermals(@igcfile,@objects)
+    @igcfile.import_file(path)
+    Windpoint.find_thermals(@igcfile)
 
     @igcfile
   end
 
 
 
-  def Igcfile.import_file(path)
+  def import_file(path)
     #puts 'import'
 
     save_obj=Hash.new

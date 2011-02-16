@@ -1,16 +1,18 @@
 class Windpoint < ActiveRecord::Base
   belongs_to :igcfile
 
-  def Windpoint.find_thermals(igcfile,objects)
+
+
+  def Windpoint.find_thermals(igcfile)
 
     start_of_therm=0
     state=Constants::NOT_IN_THERMAL
-    thermal_start=objects[0]            # must be declared before case
-    thermal_end=objects[0]              # must be declared before case
+    thermal_start=igcfile.objects[0]            # must be declared before case
+    thermal_end=igcfile.objects[0]              # must be declared before case
 
     mams=17
 
-    objects.each_with_index do |object,index|
+    igcfile.objects.each_with_index do |object,index|
 
       case state
 

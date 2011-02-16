@@ -3,9 +3,10 @@ desc "Loads IGC files from specified directory (or .)"
 # rake ligc3[.]
 # rake ligc3[public/data]
 # rake ligc3["C:/Documents and Settings/Peter Cutting/My Documents/soaring/logs/IGC/RST/IGC_files_2009-09-30"]
-# rake ligc3["C:/Documents and Settings/Peter Cutting/My Documents/soaring/logs/IGC/RST/test"]
+# rake ligc3[0,"C:/Documents and Settings/Peter Cutting/My Documents/soaring/logs/IGC/RST/test"]
 
 task :ligc3, [:proc_version,:dir] => :environment do |t, args|
+debugger
   args.with_defaults(:dir => "public/data")
   args.with_defaults(:proc_version => 0)
 
@@ -16,9 +17,8 @@ task :ligc3, [:proc_version,:dir] => :environment do |t, args|
   #gem install activerecord-import -v 0.2.0
 
 
-
   puts File.dirname(__FILE__)
-  puts proc_version
+  #puts proc_version
   #  @dir="#{args.dir}"
   #  puts @dir
 
@@ -62,35 +62,7 @@ task :ligc3, [:proc_version,:dir] => :environment do |t, args|
       #      end
 
       #debugger
-      @igcfile = Igcfile.get(path)
-
-
-      begin
-        puts "Looking in DB for " + filename
-        @igcfile = Igcfile.find_by_filename!(filename) # ! enables a recordnotfound exception
-
-        if @igcfile.proc_version.to_i < Constants::PROC_VERSION.to_i
-          puts "Old version " + @igcfile.proc_version.to_s
-          raise ActiveRecord::RecordNotFound
-        end
-
-        rescue ActiveRecord::RecordNotFound => ex
-        #puts ex.message
-        #puts ex.backtrace.join("\n")
-        Igcfile.destroy_all( ["filename = ?",filename])
-        @igcfile = Igcfile.new(:path => path, :filename => filename, :proc_version => Constants::PROC_VERSION)
-        @igcfile.save
-        @objects = Igcfile.import(path)
-
-#        @windpoints = Windpoint.find(:all,:order => "seq_secs DESC",:conditions => {
-#          :igcfile_id  => @igcfile.id })
-
-        rescue Exception => ex
-        puts "Generic " + ex.message
-
-      end
-
-      Windpoint.find_thermals(@igcfile,@objects)
+      @igcfile = Igcfile.get(path,Constants::PROC_VERSION.to_i)
 
       #      puts "SAVING " + filename
       #      igcfile = Igcfile.new( :filename => filename, :path => path)
