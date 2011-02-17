@@ -9,16 +9,16 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110204133152) do
+ActiveRecord::Schema.define(:version => 20110217150710) do
 
   create_table "igcfiles", :force => true do |t|
     t.string   "filename"
-    t.integer  "wind_direction"
-    t.integer  "wind_strength"
+    t.float    "wind_direction"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "path"
     t.integer  "proc_version"
+    t.integer  "wind_speed"
   end
 
   add_index "igcfiles", ["filename"], :name => "index_igcfiles_on_filename", :unique => true

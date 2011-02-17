@@ -2,9 +2,11 @@ class Windpoint < ActiveRecord::Base
   belongs_to :igcfile
 
 
-
   def Windpoint.find_thermals(igcfile)
-      puts "Windpoint.find_thermals "
+    puts "Windpoint.find_thermals "
+
+# delete old points
+    Windpoint.destroy_all( ["igcfile_id = ?",igcfile.id])
 
     start_of_therm=0
     state=Constants::NOT_IN_THERMAL
@@ -64,7 +66,7 @@ class Windpoint < ActiveRecord::Base
             dir=2*Constants::PI-Math.acos((Math.sin(lat2)-Math.sin(lat1)*Math.cos(d))/(Math.sin(d)*Math.cos(lat1)))
           end
 
-          speed = d*Constants::RADIUS / (thermal_start[:seq_secs] - thermal_end[:seq_secs])
+          speed = (d*Constants::RADIUS / (thermal_start[:seq_secs] - thermal_end[:seq_secs])).abs
           #climb = 0.0
           climb = (thermal_end[:baro_alt] - thermal_start[:baro_alt]).to_f/(thermal_end[:seq_secs] - thermal_start[:seq_secs]).to_f
 
@@ -87,40 +89,9 @@ class Windpoint < ActiveRecord::Base
 
     end
     #
-    #    objects.each_with_index do |object,index|
-    #
-    #      avg_cnt=0
-    #      objects[0..index].reverse_each {|item|
-    #        break if item[:seq_secs] < object[:seq_secs]-40
-    #        avg_cnt+=1
-    #
-    #        #          te = (object[:te] - save_obj[:te]) unless save_obj[:te].nil?
-    #        #          tt = (object[:seq_secs] - save_obj[:seq_secs]) unless save_obj[:seq_secs].nil?
-    #        #          dedt = te/tt - ()
-    #
-    #        #            max=max+item[:x]
-    #        #            may=may+item[:y]
-    #      }
-    #
-    #      #          if avg_cnt > 0
-    #      #            obj[:max]=(max/avg_cnt).to_i
-    #      #            obj[:may]=(may/avg_cnt).to_i
-    #      #            obj[:mams] = (((obj[:max] - item[:max])**2 + (obj[:may] - item[:may])**2)**0.5)/(obj[:seq_secs] -item[:seq_secs]).to_i
-    #      #          else
-    #      #            obj[:mams]=0
-    #      #            #obj[:max]=obj[:x]
-    #      #            #obj[:may]=obj[:y]
-    #      #          end
-    #      # the import bogs down if there are too many records so chop it up
-    #      counter=counter+1
-    #      #        if counter > 100
-    #      #          Igcpoint.import(columns, objects, options)
-    #      #          objects=[]
-    #      #          counter=0
-    #      #        end
-    #    end
-  puts ""
-end
+
+    puts ""
+  end
 
 
 end

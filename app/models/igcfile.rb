@@ -14,13 +14,35 @@ class Igcfile < ActiveRecord::Base
   end
 
 
+  def get_wind
+    puts "get_wind "
+
+    @windpoints = Windpoint.find(:all,:order => "seq_secs DESC",:conditions => {
+      :igcfile_id  => self.id })
+
+    n=0.0
+    e=0.0
+    avg_speed=0.0
+    #debugger
+    @windpoints.each {|wp|
+      puts wp[:direction]
+      n=n+(wp[:speed] * Math.cos(wp[:direction]))
+      e=e+(wp[:speed] * Math.sin(wp[:direction]))
+      avg_speed = avg_speed + wp[:speed]
+    }
+
+    avg_speed = avg_speed / @windpoints.size
+    avg_direction = Math.atan2(e, n)
+    puts "avg wind dir " + avg_direction.to_s[0,4] + " speed " + avg_speed.to_s[0,4]
+
+    self.update_attributes(:wind_direction => avg_direction, :wind_speed => avg_speed)
+end
 
   def Igcfile.get(path,proc_version)
-      puts "Igcfile.get " + path + " " + proc_version.to_s
+    puts "Igcfile.get " + path + " " + proc_version.to_s
 
     find_thermals=0
-    #debugger
-    $stdout.flush
+
     begin
       filename=path.split("/").last
 
@@ -28,7 +50,7 @@ class Igcfile < ActiveRecord::Base
       @igcfile = Igcfile.find_by_filename!(filename) # ! enables a recordnotfound exception
 
       if @igcfile.proc_version.to_i < proc_version
-        puts "Old version " + @igcfile.proc_version.to_s
+        puts "Old process version " + @igcfile.proc_version.to_s
         raise ActiveRecord::RecordNotFound
       end
 
@@ -40,9 +62,6 @@ class Igcfile < ActiveRecord::Base
       @igcfile.save
       find_thermals=1
 
-      #        @windpoints = Windpoint.find(:all,:order => "seq_secs DESC",:conditions => {
-      #          :igcfile_id  => @igcfile.id })
-
       rescue Exception => ex
       puts "Generic " + ex.message
     end
@@ -51,6 +70,7 @@ class Igcfile < ActiveRecord::Base
 
     if find_thermals==1
       Windpoint.find_thermals(@igcfile)
+      @igcfile.get_wind()
     end
 
     @igcfile

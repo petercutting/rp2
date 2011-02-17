@@ -76,22 +76,8 @@ class GearthController < ApplicationController
 
     #    Igcfile.destroy_all( ["filename = ?",filename])            # forces data reload
 
-@igcfile = Igcfile.get(path,Constants::PROC_VERSION.to_i)
+    @igcfile = Igcfile.get(path,Constants::PROC_VERSION.to_i)
 
-#    begin
-#      @igcfile = Igcfile.find_by_filename!(filename) # ! enables a recordnotfound exception
-#      rescue Exception => ex
-#      puts ex.message
-#      puts filename
-#      #puts ex.backtrace.join("\n")
-#      @igcfile = Igcfile.new(:path => path, :filename => filename)
-#      @igcfile.save
-#    end
-#
-#    @igcfile.import_file(path)
-#    Windpoint.find_thermals(@igcfile)
-
-    #@windpoints = @igcfile.windpoint.find_all()
     @windpoints = Windpoint.find(:all,:order => "seq_secs DESC",:conditions => {
       :igcfile_id  => @igcfile.id })
 
