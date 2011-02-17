@@ -16,10 +16,13 @@ class Igcfile < ActiveRecord::Base
 
 
   def Igcfile.get(path,proc_version)
-    #debugger
+      puts "Igcfile.get " + path + " " + proc_version.to_s
 
+    find_thermals=0
+    #debugger
+    $stdout.flush
     begin
-            filename=path.split("/").last
+      filename=path.split("/").last
 
       puts "Looking in DB for " + filename
       @igcfile = Igcfile.find_by_filename!(filename) # ! enables a recordnotfound exception
@@ -35,6 +38,7 @@ class Igcfile < ActiveRecord::Base
       Igcfile.destroy_all( ["filename = ?",filename])
       @igcfile = Igcfile.new(:path => path, :filename => filename, :proc_version => proc_version)
       @igcfile.save
+      find_thermals=1
 
       #        @windpoints = Windpoint.find(:all,:order => "seq_secs DESC",:conditions => {
       #          :igcfile_id  => @igcfile.id })
@@ -45,13 +49,17 @@ class Igcfile < ActiveRecord::Base
 
     @igcfile.import_file(path)
 
+    if find_thermals==1
+      Windpoint.find_thermals(@igcfile)
+    end
+
     @igcfile
   end
 
 
 
   def import_file(path)
-    #puts 'import'
+    puts 'import_file'
 
     save_obj=Hash.new
     num_recs=1 # to prevent divide by zero

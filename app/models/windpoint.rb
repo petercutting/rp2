@@ -4,6 +4,7 @@ class Windpoint < ActiveRecord::Base
 
 
   def Windpoint.find_thermals(igcfile)
+      puts "Windpoint.find_thermals "
 
     start_of_therm=0
     state=Constants::NOT_IN_THERMAL

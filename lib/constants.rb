@@ -11,6 +11,6 @@
       IN_THERMAL = 2
       LEAVE_THERMAL = 3
 
-      PROC_VERSION = 22
+      PROC_VERSION = 24
 
     end
