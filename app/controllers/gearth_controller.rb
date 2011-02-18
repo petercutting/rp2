@@ -77,6 +77,8 @@ class GearthController < ApplicationController
     #    Igcfile.destroy_all( ["filename = ?",filename])            # forces data reload
 
     @igcfile = Igcfile.get(path,Constants::PROC_VERSION.to_i)
+        @igcfile.import_file(path)
+
 
     @windpoints = Windpoint.find(:all,:order => "seq_secs DESC",:conditions => {
       :igcfile_id  => @igcfile.id })

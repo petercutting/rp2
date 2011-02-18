@@ -15,7 +15,7 @@ class Igcfile < ActiveRecord::Base
 
 
   def get_wind
-    puts "get_wind "
+    #puts "get_wind "
 
     @windpoints = Windpoint.find(:all,:order => "seq_secs DESC",:conditions => {
       :igcfile_id  => self.id })
@@ -25,7 +25,7 @@ class Igcfile < ActiveRecord::Base
     avg_speed=0.0
     #debugger
     @windpoints.each {|wp|
-      puts wp[:direction]
+      #print wp[:direction].to_s + " "
       n=n+(wp[:speed] * Math.cos(wp[:direction]))
       e=e+(wp[:speed] * Math.sin(wp[:direction]))
       avg_speed = avg_speed + wp[:speed]
@@ -33,12 +33,18 @@ class Igcfile < ActiveRecord::Base
 
     avg_speed = avg_speed / @windpoints.size
     avg_direction = Math.atan2(e, n)
+
+    if avg_direction < 0
+      avg_direction = avg_direction + (2*Constants::PI)
+    end
+
     puts "avg wind dir " + avg_direction.to_s[0,4] + " speed " + avg_speed.to_s[0,4]
 
     self.update_attributes(:wind_direction => avg_direction, :wind_speed => avg_speed)
 end
 
   def Igcfile.get(path,proc_version)
+    puts
     puts "Igcfile.get " + path + " " + proc_version.to_s
 
     find_thermals=0
@@ -46,11 +52,11 @@ class Igcfile < ActiveRecord::Base
     begin
       filename=path.split("/").last
 
-      puts "Looking in DB for " + filename
+      #puts "Looking in DB for " + filename
       @igcfile = Igcfile.find_by_filename!(filename) # ! enables a recordnotfound exception
 
       if @igcfile.proc_version.to_i < proc_version
-        puts "Old process version " + @igcfile.proc_version.to_s
+        #puts "Old process version " + @igcfile.proc_version.to_s
         raise ActiveRecord::RecordNotFound
       end
 
@@ -66,9 +72,8 @@ class Igcfile < ActiveRecord::Base
       puts "Generic " + ex.message
     end
 
-    @igcfile.import_file(path)
-
     if find_thermals==1
+      @igcfile.import_file(path)
       Windpoint.find_thermals(@igcfile)
       @igcfile.get_wind()
     end
@@ -80,6 +85,11 @@ class Igcfile < ActiveRecord::Base
 
   def import_file(path)
     puts 'import_file'
+
+    if not self.objects.empty?
+      puts "import_file, objects not empty, aborting"
+      return
+    end
 
     save_obj=Hash.new
     num_recs=1 # to prevent divide by zero
