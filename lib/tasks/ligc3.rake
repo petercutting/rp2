@@ -1,5 +1,7 @@
 desc "Loads IGC files from specified directory (or .)"
 
+# rake ligc3[c:/Users/peter/workspace_rails/igc,0]
+
 # rake ligc3[.,0]
 # rake ligc3[public/data,0]
 # rake ligc3[public/data/NewFolder,0]
@@ -25,16 +27,21 @@ task :ligc3, [:dir,:proc_version] => :environment do |t, args|
   #puts proc_version
   #  @dir="#{args.dir}"
   #  puts @dir
-#  print "B "
-#  $stdout.sync     # only need to be done once
-#  $stdout.flush
+  #  print "B "
+  #  $stdout.sync     # only need to be done once
+  #  $stdout.flush
 
   class Import
 
     def process_igcfiles(dir,proc_version)
-
+      debugger
       if proc_version == 0
-        proc_version = Igcfile.maximum('proc_version') + 1
+        begin
+           proc_version = Igcfile.maximum('proc_version') + 1
+        rescue Exception=>e
+          proc_version = 0
+        end
+
       end
 
       puts 'directory is ' + dir
@@ -51,6 +58,7 @@ task :ligc3, [:dir,:proc_version] => :environment do |t, args|
     def WalkDirs(path,proc_version)
       puts "look in " + path
       Find.find(path) do |entry|
+        #puts entry
         if File.file?(entry) and entry.to_s.downcase.match('.igc$')
           process_igcfile(entry,proc_version)
         end
@@ -84,8 +92,9 @@ task :ligc3, [:dir,:proc_version] => :environment do |t, args|
   end
 
   puts "Starting..."
+  #debugger
   import = Import.new
-  debugger
+
   import.process_igcfiles("#{args.dir}","#{args.proc_version}".to_i)
 
 end

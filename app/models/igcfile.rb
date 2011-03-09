@@ -31,14 +31,22 @@ class Igcfile < ActiveRecord::Base
       avg_speed = avg_speed + wp[:speed]
     }
 
-    avg_speed = avg_speed / @windpoints.size
-    avg_direction = Math.atan2(e, n)
 
-    if avg_direction < 0
-      avg_direction = avg_direction + (2*Constants::PI)
+    if @windpoints.size > 0
+      avg_speed = avg_speed / @windpoints.size
+      avg_direction = Math.atan2(e, n)
+
+      if avg_direction < 0
+        avg_direction = avg_direction + (2*Constants::PI)
+      end
+    else
+      avg_speed = 0.0
+      avg_direction = 0.0
     end
 
-    puts "avg wind dir " + avg_direction.to_s[0,4] + " speed " + avg_speed.to_s[0,4]
+    puts "Thermals " + @windpoints.size.to_s +
+          " avg wind dir " + avg_direction.to_s[0,4] +
+          " speed " + avg_speed.to_s[0,4]
 
     self.update_attributes(:wind_direction => avg_direction, :wind_speed => avg_speed)
 end
