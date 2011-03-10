@@ -12,7 +12,7 @@ class GearthController < ApplicationController
 
     #puts 'path ' + path
     #puts 'p ' + Dir.pwd
-    #puts 'network_link3 ' + params.inspect
+    puts 'network_link3 ' + params.inspect
     @entries = []
 
     # Cycle through directory
@@ -77,8 +77,7 @@ class GearthController < ApplicationController
     #    Igcfile.destroy_all( ["filename = ?",filename])            # forces data reload
 
     @igcfile = Igcfile.get(path,Constants::PROC_VERSION.to_i)
-        @igcfile.import_file(path)
-
+    @igcfile.import_file(path)
 
     @windpoints = Windpoint.find(:all,:order => "seq_secs DESC",:conditions => {
       :igcfile_id  => @igcfile.id })

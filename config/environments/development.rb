@@ -18,3 +18,4 @@ config.action_mailer.raise_delivery_errors = false
 
 #pcg
 config.log_level = :info
+#config.log_level = :debug
