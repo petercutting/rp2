@@ -1,0 +1,18 @@
+<h1>Listing bbs</h1>
+
+<table>
+  <tr>
+  </tr>
+
+<% @bbs.each do |bb| %>
+  <tr>
+    <td><%= link_to 'Show', bb %></td>
+    <td><%= link_to 'Edit', edit_bb_path(bb) %></td>
+    <td><%= link_to 'Destroy', bb, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New bb', new_bb_path %>
