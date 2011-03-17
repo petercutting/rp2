@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110315211837) do
+ActiveRecord::Schema.define(:version => 20110316205012) do
 
   create_table "bbs", :force => true do |t|
     t.datetime "created_at"
@@ -58,6 +58,8 @@ ActiveRecord::Schema.define(:version => 20110315211837) do
     t.string   "provider"
     t.integer  "battlevel"
   end
+
+  add_index "pos", ["time"], :name => "index_pos_on_time", :unique => true
 
   create_table "windpoints", :force => true do |t|
     t.integer "igcfile_id"

@@ -152,4 +152,24 @@ class GearthController < ApplicationController
     end
   end
 
+
+  def plot
+    puts 'plot ' + params.inspect
+    @centre=["0","0"]
+    @bbox=["0","0","0","0"]
+    @centre = params[:CENTRE].split(",") unless params[:CENTRE].nil?
+    @bbox = params[:BBOX].split(",") unless params[:BBOX].nil?
+    #debugger
+
+    #    Po.destroy_all( ["filename = ?",filename])            # forces data reload
+    #    Po.destroy_all( )            # forces data reload
+
+    @pos = Po.find(:all,:order => "time DESC", :limit =>2,:conditions => { })
+
+    respond_to do |format|
+      #format.html # index.html.erb
+      format.kml  # index.kml.builder
+    end
+  end
+
 end

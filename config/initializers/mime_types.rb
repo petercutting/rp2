@@ -7,3 +7,4 @@
 # Google earth
 #Mime::Type.register "application/vnd.google-earth.kml+xml", :kml
 Mime::Type.register "text/plain", :kml
+Mime::Type.register "text/plain", :txt
