@@ -1,7 +1,6 @@
 class Windpoint < ActiveRecord::Base
   belongs_to :igcfile
 
-
   def Windpoint.find_thermals(igcfile)
     puts "Windpoint.find_thermals "
 

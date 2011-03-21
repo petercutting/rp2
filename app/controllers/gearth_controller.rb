@@ -64,6 +64,42 @@ class GearthController < ApplicationController
   end
 
 
+  def thermals0
+    puts 'thermals '
+    @centre=["0","0"]
+    @bbox=["0","0","0","0"]
+    @centre = params[:CENTRE].split(",") unless params[:CENTRE].nil?
+    @bbox = params[:BBOX].split(",") unless params[:BBOX].nil?
+    #debugger
+
+    #path=params[:path]
+    #@igcfile = Igcfile.find_by_filename(path.split("/").last)
+    @windpoints = Windpoint.find(:all,:order => "seq_secs DESC" )
+
+    @windpoints.each {|wp|
+      secs =  wp[:altitude] / wp[:climb]
+      d = secs * wp[:speed]
+      d=d/Constants::RADIUS
+
+      lat0=Math.asin(Math.sin(wp[:dlat])*Math.cos(d)+Math.cos(wp[:dlat])*Math.sin(d)*Math.cos(wp[:direction]))
+      if (Math.cos(lat0)==0)
+        lon0=wp[:dlon]      # endpoint a pole
+      else
+        lon0=((wp[:dlon]-Math.asin(Math.sin(wp[:direction])*Math.sin(d)/Math.cos(wp[:lat0]))+Constants::PI) % (2*Constants::PI))-Constants::PI
+      end
+    }
+
+    wp[:lat0] = lat0 / Constants::RAD_PER_DEG
+    wp[:lon0] = lon0 / Constants::RAD_PER_DEG
+
+    respond_to do |format|
+      #format.html # index.html.erb
+      format.kml  # index.kml.builder
+    end
+  end
+
+
+
   def route
     puts 'route ' + params[:path].inspect
     @centre=["0","0"]
@@ -164,8 +200,9 @@ class GearthController < ApplicationController
     #    Po.destroy_all( ["filename = ?",filename])            # forces data reload
     #    Po.destroy_all( )            # forces data reload
 
-    @pos = Po.find(:all,:order => "time DESC", :limit =>2,:conditions => { })
+    @pos = Po.find(:all,:order => "time DESC", :limit =>25,:conditions => { })
 
+    @po = @pos[0]
     respond_to do |format|
       #format.html # index.html.erb
       format.kml  # index.kml.builder

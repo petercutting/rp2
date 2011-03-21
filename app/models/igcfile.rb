@@ -191,7 +191,8 @@ class Igcfile < ActiveRecord::Base
 
         obj = { :lat_lon => a[2]+','+a[3], :baro_alt => a[5].to_i, :gps_alt => a[6].to_i,
           :enl => enl.to_i, :seq_secs => seq_secs, :rlat => rlat, :rlon => rlon,
-          :dlat => dlat, :dlon => dlon,:x => x, :y => y, :z => z}
+          :dlat => dlat, :dlon => dlon,
+          :x => x, :y => y, :z => z}
 
         if not save_obj.empty?
           # ignore duplicate records (It happens!)
