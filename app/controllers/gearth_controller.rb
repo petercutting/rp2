@@ -56,6 +56,12 @@ class GearthController < ApplicationController
     #path=params[:path]
     #@igcfile = Igcfile.find_by_filename(path.split("/").last)
     @windpoints = Windpoint.find(:all,:order => "seq_secs DESC" )
+    @windpoints.each {|wp|
+      wp[:dlon] = wp[:dlon] / Constants::RAD_PER_DEG
+      wp[:dlat] = wp[:dlat] / Constants::RAD_PER_DEG
+      wp[:dlon2] = wp[:dlon2] / Constants::RAD_PER_DEG
+      wp[:dlat2] = wp[:dlat2] / Constants::RAD_PER_DEG
+    }
 
     respond_to do |format|
       #format.html # index.html.erb
@@ -119,6 +125,11 @@ class GearthController < ApplicationController
       :igcfile_id  => @igcfile.id })
 
     @windpoints.each {|wp|
+      wp[:dlon] = wp[:dlon] / Constants::RAD_PER_DEG
+      wp[:dlat] = wp[:dlat] / Constants::RAD_PER_DEG
+      wp[:dlon2] = wp[:dlon2] / Constants::RAD_PER_DEG
+      wp[:dlat2] = wp[:dlat2] / Constants::RAD_PER_DEG
+
       dlon_diff=wp[:dlon]-@centre[0].to_f
       dlat_diff=wp[:dlat]-@centre[1].to_f
 
@@ -201,6 +212,11 @@ class GearthController < ApplicationController
     #    Po.destroy_all( )            # forces data reload
 
     @pos = Po.find(:all,:order => "time DESC", :limit =>25,:conditions => { })
+
+    @pos.each {|wp|
+      wp[:dlon] = wp[:dlon] / Constants::RAD_PER_DEG
+      wp[:dlat] = wp[:dlat] / Constants::RAD_PER_DEG
+    }
 
     @po = @pos[0]
     respond_to do |format|

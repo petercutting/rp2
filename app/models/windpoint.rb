@@ -58,10 +58,14 @@ class Windpoint < ActiveRecord::Base
           if climb > 0.2
 
 # wind direction is back from point 2 to point 1
-            lon2 = thermal_start[:malon]*Constants::RAD_PER_DEG
-            lat2 = thermal_start[:malat]*Constants::RAD_PER_DEG
-            lon1 = thermal_end[:malon]*Constants::RAD_PER_DEG
-            lat1 = thermal_end[:malat]*Constants::RAD_PER_DEG
+            #lon2 = thermal_start[:malon]*Constants::RAD_PER_DEG
+            #lat2 = thermal_start[:malat]*Constants::RAD_PER_DEG
+            #lon1 = thermal_end[:malon]*Constants::RAD_PER_DEG
+            #lat1 = thermal_end[:malat]*Constants::RAD_PER_DEG
+            lon2 = thermal_start[:malon]
+            lat2 = thermal_start[:malat]
+            lon1 = thermal_end[:malon]
+            lat1 = thermal_end[:malat]
 
             #            puts lon1.to_s + " " + lat1.to_s
             #            puts lon2.to_s + " " + lat2.to_s

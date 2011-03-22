@@ -242,8 +242,10 @@ class Igcfile < ActiveRecord::Base
           end
 
           # convert moving average back to decimal coordinates
-          obj[:malat] = (Math.asin(obj[:maz].to_f / Constants::RADIUS) ) /Constants::RAD_PER_DEG
-          obj[:malon] = (Math.atan2(obj[:may], obj[:max]) ) /Constants::RAD_PER_DEG
+          #obj[:malat] = (Math.asin(obj[:maz].to_f / Constants::RADIUS) ) /Constants::RAD_PER_DEG
+          #obj[:malon] = (Math.atan2(obj[:may], obj[:max]) ) /Constants::RAD_PER_DEG
+          obj[:malat] = (Math.asin(obj[:maz].to_f / Constants::RADIUS) )
+          obj[:malon] = (Math.atan2(obj[:may], obj[:max]) )
 
           obj[:mams] = (((obj[:max] - save_obj[:max])**2 + (obj[:may] - save_obj[:may])**2)**0.5)/(obj[:seq_secs] - save_obj[:seq_secs]).to_i
 
