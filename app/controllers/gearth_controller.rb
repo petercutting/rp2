@@ -121,6 +121,11 @@ class GearthController < ApplicationController
     @igcfile = Igcfile.get(path,Constants::PROC_VERSION.to_i)
     @igcfile.import_file(path)
 
+    @igcfile.objects.each {|wp|
+      wp[:malon] = wp[:malon] / Constants::RAD_PER_DEG
+      wp[:malat] = wp[:malat] / Constants::RAD_PER_DEG
+    }
+
     @windpoints = Windpoint.find(:all,:order => "seq_secs DESC",:conditions => {
       :igcfile_id  => @igcfile.id })
 

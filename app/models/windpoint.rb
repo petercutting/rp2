@@ -72,7 +72,7 @@ class Windpoint < ActiveRecord::Base
             #            puts thermal_start[:baro_alt].to_s + " " + thermal_end[:baro_alt].to_s
             #            puts thermal_start[:seq_secs].to_s + " " + thermal_end[:seq_secs].to_s
 
-            #            d=(2*Math.asin(((Math.sin((lat1-lat2)/2))**2 + Math.cos(lat1)*Math.cos(lat2)*(Math.sin((lon1-lon2)/2))**2)**0.5)).abs
+            #d=(2*Math.asin(((Math.sin((lat1-lat2)/2))**2 + Math.cos(lat1)*Math.cos(lat2)*(Math.sin((lon1-lon2)/2))**2)**0.5)).abs
             d=Math.acos(Math.sin(lat1)*Math.sin(lat2)+Math.cos(lat1)*Math.cos(lat2)*Math.cos(lon1-lon2))
             #            puts
             if Math.sin(lon2-lon1)<0
