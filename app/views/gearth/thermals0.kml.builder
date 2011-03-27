@@ -15,7 +15,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
 		xml.name("thermals0")
 		xml.Style {
 			xml.LineStyle {
-				xml.color("3fff00ff")
+				xml.color("8fefe0ff")
 				xml.width("3")
 			}
     	}
@@ -33,6 +33,22 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
 			end
 		}
 	}
+
+	xml.Placemark {
+		xml.name("source")
+
+		xml.MultiGeometry {
+			@windpoints.each do |o|
+						xml.Point {
+						xml.coordinates {
+							xml.text! "#{o[:lon0]},#{o[:lat0]},0.0} "
+					}
+				}
+
+			end
+		}
+	}
+
 
   }
 end

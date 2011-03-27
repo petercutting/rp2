@@ -70,10 +70,11 @@ class PosController < ApplicationController
     #Time.parse("2007-01-31 12:22:26")
     #DateTime.strptime("12/25/2007 01:00 AM EST", "%m/%d/%Y %I:%M %p %Z")
     #DateTime.strptime("12/25/2007 01:00 AM EST", "%m/%d/%Y %I:%M %p %Z").utc.to_time
+time = Time.new
 
     respond_to do |format|
       if @po.save
-        format.xml { render :xml => "Success" }
+        format.xml { render :xml => "Success " + time.strftime("%Y-%m-%d %H:%M:%S") }
         format.html { redirect_to(@po, :notice => 'Po was successfully created.') }
         #format.xml  { render :xml => @po, :status => :created, :location => @po }
       else

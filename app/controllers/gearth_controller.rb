@@ -8,6 +8,8 @@ class GearthController < ApplicationController
   def network_link3
     #puts 'network_link3' + Constants::XX
     path = "public/data"
+    path = "c:/Users/peter/workspace_rails/igcsmall"
+
     path = params[:path] unless params[:path].nil?
 
     #puts 'path ' + path
@@ -84,19 +86,39 @@ class GearthController < ApplicationController
 
     @windpoints.each {|wp|
       secs =  wp[:altitude] / wp[:climb]
-      d = secs * wp[:speed]
-      d=d/Constants::RADIUS
+      dis = secs * wp[:speed]
+      d=dis/Constants::RADIUS
 
       lat0=Math.asin(Math.sin(wp[:dlat])*Math.cos(d)+Math.cos(wp[:dlat])*Math.sin(d)*Math.cos(wp[:direction]))
       if (Math.cos(lat0)==0)
         lon0=wp[:dlon]      # endpoint a pole
       else
-        lon0=((wp[:dlon]-Math.asin(Math.sin(wp[:direction])*Math.sin(d)/Math.cos(wp[:lat0]))+Constants::PI) % (2*Constants::PI))-Constants::PI
+        begin
+#          puts
+          lon0=(
+          (wp[:dlon]-
+              Math.asin(
+                Math.sin(wp[:direction])*
+                  Math.sin(d)/Math.cos(lat0)
+                )+Constants::PI) % (2*Constants::PI))-Constants::PI
+          rescue
+          puts wp[:altitude].to_s
+          puts wp[:climb].to_s
+          puts secs.to_s
+          puts dis.to_s
+          puts "lat " + lat0.to_s
+          puts "lon " + lon0.to_s
+          puts wp[:dlon].to_s
+          puts wp[:dlat].to_s
+          puts wp[:direction].to_s
+$stdout.flush
+        end
       end
-    }
-
     wp[:lat0] = lat0 / Constants::RAD_PER_DEG
     wp[:lon0] = lon0 / Constants::RAD_PER_DEG
+    wp[:dlat] = wp[:dlat] / Constants::RAD_PER_DEG
+    wp[:dlon] = wp[:dlon] / Constants::RAD_PER_DEG
+    }
 
     respond_to do |format|
       #format.html # index.html.erb
@@ -218,10 +240,10 @@ class GearthController < ApplicationController
 
     @pos = Po.find(:all,:order => "time DESC", :limit =>25,:conditions => { })
 
-    @pos.each {|wp|
-      wp[:dlon] = wp[:dlon] / Constants::RAD_PER_DEG
-      wp[:dlat] = wp[:dlat] / Constants::RAD_PER_DEG
-    }
+#        @pos.each {|wp|
+#          wp[:longitude] = wp[:longitude] / Constants::RAD_PER_DEG
+#          wp[:latitude] = wp[:latitude] / Constants::RAD_PER_DEG
+#        }
 
     @po = @pos[0]
     respond_to do |format|

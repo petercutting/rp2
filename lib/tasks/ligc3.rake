@@ -1,6 +1,7 @@
 desc "Loads IGC files from specified directory (or .)"
 
 # rake ligc3[c:/Users/peter/workspace_rails/igc,0]
+# rake ligc3[c:/Users/peter/workspace_rails/igcsmall,0]
 
 # rake ligc3[.,0]
 # rake ligc3[public/data,0]
@@ -47,9 +48,9 @@ task :ligc3, [:dir,:proc_version] => :environment do |t, args|
       puts 'directory is ' + dir
       num_recs=0
 
-      #      Igcfile.destroy_all
-      #      Igcpoint.destroy_all
-      #      Windpoint.destroy_all
+            Igcfile.destroy_all
+            Igcpoint.destroy_all
+            Windpoint.destroy_all
 
       WalkDirs(dir,proc_version)
     end
