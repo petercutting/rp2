@@ -94,13 +94,13 @@ class GearthController < ApplicationController
         lon0=wp[:dlon]      # endpoint a pole
       else
         begin
-#          puts
+          #          puts
           lon0=(
-          (wp[:dlon]-
-              Math.asin(
-                Math.sin(wp[:direction])*
-                  Math.sin(d)/Math.cos(lat0)
-                )+Constants::PI) % (2*Constants::PI))-Constants::PI
+           (wp[:dlon]-
+           Math.asin(
+                    Math.sin(wp[:direction])*
+          Math.sin(d)/Math.cos(lat0)
+          )+Constants::PI) % (2*Constants::PI))-Constants::PI
           rescue
           puts wp[:altitude].to_s
           puts wp[:climb].to_s
@@ -111,13 +111,13 @@ class GearthController < ApplicationController
           puts wp[:dlon].to_s
           puts wp[:dlat].to_s
           puts wp[:direction].to_s
-$stdout.flush
+          $stdout.flush
         end
       end
-    wp[:lat0] = lat0 / Constants::RAD_PER_DEG
-    wp[:lon0] = lon0 / Constants::RAD_PER_DEG
-    wp[:dlat] = wp[:dlat] / Constants::RAD_PER_DEG
-    wp[:dlon] = wp[:dlon] / Constants::RAD_PER_DEG
+      wp[:lat0] = lat0 / Constants::RAD_PER_DEG
+      wp[:lon0] = lon0 / Constants::RAD_PER_DEG
+      wp[:dlat] = wp[:dlat] / Constants::RAD_PER_DEG
+      wp[:dlon] = wp[:dlon] / Constants::RAD_PER_DEG
     }
 
     respond_to do |format|
@@ -240,12 +240,37 @@ $stdout.flush
 
     @pos = Po.find(:all,:order => "time DESC", :limit =>25,:conditions => { })
 
-#        @pos.each {|wp|
-#          wp[:longitude] = wp[:longitude] / Constants::RAD_PER_DEG
-#          wp[:latitude] = wp[:latitude] / Constants::RAD_PER_DEG
-#        }
+    #        @pos.each {|wp|
+    #          wp[:longitude] = wp[:longitude] / Constants::RAD_PER_DEG
+    #          wp[:latitude] = wp[:latitude] / Constants::RAD_PER_DEG
+    #        }
 
     @po = @pos[0]
+    respond_to do |format|
+      #format.html # index.html.erb
+      format.kml  # index.kml.builder
+    end
+  end
+
+
+  def top
+    puts 'top ' + params.inspect
+
+    @path = params[:path]
+
+    respond_to do |format|
+      #format.html # index.html.erb
+      format.kml  # index.kml.builder
+    end
+  end
+
+  def process_igc_files
+    puts __method__.to_s + ' ' + params.inspect
+
+    #@path = params[:path]
+    call_rake :ligc3, ["params[:path]",0]
+
+
     respond_to do |format|
       #format.html # index.html.erb
       format.kml  # index.kml.builder
