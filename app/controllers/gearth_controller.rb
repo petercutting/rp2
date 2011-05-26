@@ -4,6 +4,7 @@ class GearthController < ApplicationController
   include Igc
   require 'Constants'
 
+#http://localhost:3000/gearth/network_link3?path=public/data
 
   def network_link3
     #puts 'network_link3' + Constants::XX
@@ -138,6 +139,9 @@ class GearthController < ApplicationController
     path=params[:path]
     filename=path.split("/").last
 
+    puts 'centre0 ' + @centre[0].to_f.to_s
+    puts 'centre1 ' + @centre[1].to_f.to_s
+
     #    Igcfile.destroy_all( ["filename = ?",filename])            # forces data reload
 
     @igcfile = Igcfile.get(path,Constants::PROC_VERSION.to_i)
@@ -157,6 +161,8 @@ class GearthController < ApplicationController
       wp[:dlon2] = wp[:dlon2] / Constants::RAD_PER_DEG
       wp[:dlat2] = wp[:dlat2] / Constants::RAD_PER_DEG
 
+#      dlon_diff=wp[:dlon]-(@centre[0].to_f / Constants::RAD_PER_DEG)
+#      dlat_diff=wp[:dlat]-(@centre[1].to_f / Constants::RAD_PER_DEG)
       dlon_diff=wp[:dlon]-@centre[0].to_f
       dlat_diff=wp[:dlat]-@centre[1].to_f
 

@@ -3,3 +3,4 @@ db/development.sqlite3
 log/*.log
 public/data/*.igc
 public/data/*.IGC
+config/database.yml

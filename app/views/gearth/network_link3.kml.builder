@@ -27,6 +27,7 @@ xml.Document {
     xml.Link {
       xml.href(url_for(:action=>:route, :path => entry,:only_path => false))
       xml.viewRefreshMode("onRequest")
+      xml.viewFormat("BBOX=[bboxWest],[bboxSouth],[bboxEast],[bboxNorth]&CENTRE=[lookatLon],[lookatLat]")
       }
     }
   end
