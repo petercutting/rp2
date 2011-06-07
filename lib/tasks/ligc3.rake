@@ -38,8 +38,8 @@ task :ligc3, [:dir,:proc_version] => :environment do |t, args|
       debugger
       if proc_version == 0
         begin
-           proc_version = Igcfile.maximum('proc_version') + 1
-        rescue Exception=>e
+          proc_version = Igcfile.maximum('proc_version') + 1
+          rescue Exception=>e
           proc_version = 0
         end
 
@@ -48,9 +48,9 @@ task :ligc3, [:dir,:proc_version] => :environment do |t, args|
       puts 'directory is ' + dir
       num_recs=0
 
-            Igcfile.destroy_all
-            Igcpoint.destroy_all
-            Windpoint.destroy_all
+      Igcfile.destroy_all
+      Igcpoint.destroy_all
+      Windpoint.destroy_all
 
       WalkDirs(dir,proc_version)
     end

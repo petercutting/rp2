@@ -4,9 +4,98 @@ class GearthController < ApplicationController
   include Igc
   require 'Constants'
 
-#http://localhost:3000/gearth/network_link3?path=public/data
+  def common_substring(data)
+    data.inject { |m, s| s[0,(0..m.length).find { |i| m[i] != s[i] }.to_i] }
+  end
+
+
+  def update_substr(a,s)
+    a.each_with_index do |e,i|
+      if (f=substr(e,s))>0
+        a[i]=e[0..f]
+        return
+      end
+    end
+    a.push s
+  end
+
+
+  def substr(a,b)
+    f=0
+    for i in 0..[a.length,b.length].min-1
+      if a[i]==b[i]
+        f=i
+      else
+        return f
+      end
+    end
+    return f
+  end
+
+
+  #http://localhost:3000/gearth/network_link3?path=public/data
 
   def network_link3
+    #puts 'network_link3' + Constants::XX
+    path = "public/data"
+    path = "c:/Users/peter/workspace_rails/igcsmall"
+
+    path = params[:path] unless params[:path].nil?
+
+    #puts 'path ' + path
+    #puts 'p ' + Dir.pwd
+    puts 'network_link3 ' + params.inspect
+    @entries = []
+    roots = []
+
+    @igcfs = Igcfile.find(:all, :order => 'path')  # get files
+    @igcfs.each do |igcf|    # for each file
+      #puts igcf.path
+      update_substr(roots ,igcf.path)
+    end
+
+    #puts roots.inspect
+
+    #igcps = igcf.igcpoint(:all, :order => 'seq_secs')   # get points
+    #igcps.each do |igcp|          # for each point
+    #@ps<<(igcp.rlon/RAD_PER_DEG).to_s + ',' + (igcp.rlat/RAD_PER_DEG).to_s + ',' + igcp.baro_alt.to_s + "\n"         # push data to array
+    #@ps<<[igcp.dlat.to_s,igcp.dlon.to_s]         # push data to array
+    #puts [igcp.dlat.to_s,igcp.dlon.to_s].inspect
+    # end
+
+    # Cycle through directory
+    roots.each do |r]
+      Dir.foreach(r + "*") do |e|
+        entry = path + "/" + e
+
+        if entry.last == "."
+          #puts 'ignoring ' + entry
+          next
+        end
+
+        puts entry.inspect
+        if File.directory?(entry)
+          #puts 'dir2 ' + entry
+          @entries << entry
+        end
+
+        if File.file?(entry)
+          if entry.downcase.match(".igc")
+            #puts 'igc ' + entry
+            @entries << entry
+          end
+        end
+      end
+    end
+
+    respond_to do |format|
+      #format.html # index.html.erb
+      format.kml  # index.kml.builder
+    end
+  end
+
+
+  def igc
     #puts 'network_link3' + Constants::XX
     path = "public/data"
     path = "c:/Users/peter/workspace_rails/igcsmall"
@@ -161,8 +250,8 @@ class GearthController < ApplicationController
       wp[:dlon2] = wp[:dlon2] / Constants::RAD_PER_DEG
       wp[:dlat2] = wp[:dlat2] / Constants::RAD_PER_DEG
 
-#      dlon_diff=wp[:dlon]-(@centre[0].to_f / Constants::RAD_PER_DEG)
-#      dlat_diff=wp[:dlat]-(@centre[1].to_f / Constants::RAD_PER_DEG)
+      #      dlon_diff=wp[:dlon]-(@centre[0].to_f / Constants::RAD_PER_DEG)
+      #      dlat_diff=wp[:dlat]-(@centre[1].to_f / Constants::RAD_PER_DEG)
       dlon_diff=wp[:dlon]-@centre[0].to_f
       dlat_diff=wp[:dlat]-@centre[1].to_f
 
