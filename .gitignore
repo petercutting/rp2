@@ -1,6 +1,6 @@
 db/development.sqlite3-journal
 db/development.sqlite3
 log/*.log
-public/data/*.igc
-public/data/*.IGC
+*.igc
+*.IGC
 config/database.yml
