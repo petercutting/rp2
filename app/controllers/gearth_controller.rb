@@ -145,10 +145,16 @@ class GearthController < ApplicationController
 
 
   def thermals
+    @centre=["0","0"]
+    @bbox=["0","0","0","0"]
+    @centre = params[:CENTRE].split(",") unless params[:CENTRE].nil?
+    @bbox = params[:BBOX].split(",") unless params[:BBOX].nil?
+    #debugger
+
     puts 'thermals '
-    direction=45
+    direction=0
     direction = params[direction] unless params[direction].nil?
-    spread=70 # default
+    spread=20 # default
     spread = params[spread] unless params[spread].nil?
 
     from_rad = (direction - spread/2) * Constants::RAD_PER_DEG
@@ -161,21 +167,22 @@ class GearthController < ApplicationController
       to_rad = to_rad + (Constants::PI * 2)
     end
 
-if from_rad > to_rad
-      @windpoints = Windpoint.find(:all,:order => "seq_secs DESC" )
-end
+    if from_rad < to_rad
+      @windpoints = Windpoint.find(:all,
+                                   :order => "seq_secs DESC",
+      :conditions => [ "direction >= ? AND direction < ?",  from_rad, to_rad]  )
+    else
+       @windpoints1 = Windpoint.find(:all,
+                                   :order => "seq_secs DESC",
+      :conditions => [ "direction >= ? AND direction < ?",  from_rad, 0.0]  )
 
-    @centre=["0","0"]
-    @bbox=["0","0","0","0"]
-    @centre = params[:CENTRE].split(",") unless params[:CENTRE].nil?
-    @bbox = params[:BBOX].split(",") unless params[:BBOX].nil?
-    #debugger
+       @windpoints = Windpoint.find(:all,
+                                   :order => "seq_secs DESC",
+      :conditions => [ "direction >= ? AND direction < ?",  0.0, to_rad]  )
 
-    #path=params[:path]
-    #@igcfile = Igcfile.find_by_filename(path.split("/").last)
-    @windpoints = Windpoint.find(:all,
-    :order => "seq_secs DESC",
-    :conditions => [ "direction >= ? AND direction < ?",  from_rad, to_rad]  )
+      @windpoints = @windpoints + @windpoints1
+    end
+
 
     @windpoints.each {|wp|
       wp[:dlon] = wp[:dlon] / Constants::RAD_PER_DEG
