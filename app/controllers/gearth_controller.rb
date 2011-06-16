@@ -34,19 +34,52 @@ class GearthController < ApplicationController
 
   #http://localhost:3000/gearth/igc
 
-  def igc
-    roots = []
 
-    @igcfs = Igcfile.find(:all, :order => 'path')  # get files
-    @igcfs.each do |igcf|    # for each file
-      #puts igcf.path
-      update_substr(roots ,igcf.path)
+  #http://localhost:3000/gearth/network_link3?path=public/data
+
+  def network_link3
+    puts 'network_link3 ' + params.inspect
+    @entries = []
+    #puts 'network_link3'
+    #    path = "public/data"
+    #    path = "c:/Users/peter/workspace_rails/igcsmall"
+
+    path = params[:path] unless params[:path].nil?
+
+    roots = []
+    if params[:path].nil?
+      @igcfs = Igcfile.find(:all, :order => 'path')  # get files
+      @igcfs.each do |igcf|    # for each file
+        #puts igcf.path
+        update_substr(roots ,igcf.path)
+      end
+      puts roots.inspect
+      $stdout.flush
+      roots.each do |r|
+        @entries << r
+      end
     end
 
     # Cycle through directory
     roots.each do |r|
       Dir.foreach(r + "*") do |e|
+
+    if not params[:path].nil?
+      #puts 'path ' + path
+      #puts 'p ' + Dir.pwd
+
+      #igcps = igcf.igcpoint(:all, :order => 'seq_secs')   # get points
+      #igcps.each do |igcp|          # for each point
+      #@ps<<(igcp.rlon/RAD_PER_DEG).to_s + ',' + (igcp.rlat/RAD_PER_DEG).to_s + ',' + igcp.baro_alt.to_s + "\n"         # push data to array
+      #@ps<<[igcp.dlat.to_s,igcp.dlon.to_s]         # push data to array
+      #puts [igcp.dlat.to_s,igcp.dlon.to_s].inspect
+      # end
+
+      # Cycle through directory
+      Dir.foreach(path) do |e|
+
         entry = path + "/" + e
+        #puts entry.inspect
 
         if entry.last == "."
           #puts 'ignoring ' + entry
@@ -67,6 +100,7 @@ class GearthController < ApplicationController
         end
       end
     end
+
 
     respond_to do |format|
       #format.html # index.html.erb
@@ -197,16 +231,45 @@ class GearthController < ApplicationController
 
 
   def thermals
-    puts 'thermals '
     @centre=["0","0"]
     @bbox=["0","0","0","0"]
     @centre = params[:CENTRE].split(",") unless params[:CENTRE].nil?
     @bbox = params[:BBOX].split(",") unless params[:BBOX].nil?
     #debugger
 
-    #path=params[:path]
-    #@igcfile = Igcfile.find_by_filename(path.split("/").last)
-    @windpoints = Windpoint.find(:all,:order => "seq_secs DESC" )
+    puts 'thermals '
+    direction=0
+    direction = params[direction] unless params[direction].nil?
+    spread=20 # default
+    spread = params[spread] unless params[spread].nil?
+
+    from_rad = (direction - spread/2) * Constants::RAD_PER_DEG
+    if from_rad < 0
+      from_rad = from_rad + (Constants::PI * 2)
+    end
+
+    to_rad = (direction + spread/2) * Constants::RAD_PER_DEG
+    if to_rad < 0
+      to_rad = to_rad + (Constants::PI * 2)
+    end
+
+    if from_rad < to_rad
+      @windpoints = Windpoint.find(:all,
+                                   :order => "seq_secs DESC",
+      :conditions => [ "direction >= ? AND direction < ?",  from_rad, to_rad]  )
+    else
+       @windpoints1 = Windpoint.find(:all,
+                                   :order => "seq_secs DESC",
+      :conditions => [ "direction >= ? AND direction < ?",  from_rad, 0.0]  )
+
+       @windpoints = Windpoint.find(:all,
+                                   :order => "seq_secs DESC",
+      :conditions => [ "direction >= ? AND direction < ?",  0.0, to_rad]  )
+
+      @windpoints = @windpoints + @windpoints1
+    end
+
+
     @windpoints.each {|wp|
       wp[:dlon] = wp[:dlon] / Constants::RAD_PER_DEG
       wp[:dlat] = wp[:dlat] / Constants::RAD_PER_DEG
