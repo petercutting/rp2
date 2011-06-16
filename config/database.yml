@@ -4,7 +4,7 @@ development:
   adapter: mysql
   database: rp2
   username: root
-  password: off
+  password: maskiner
   host: localhost
   port: 3306
 
