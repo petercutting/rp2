@@ -4,3 +4,4 @@ log/*.log
 *.igc
 *.IGC
 config/database.yml
+
