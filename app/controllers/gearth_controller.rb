@@ -144,6 +144,21 @@ class GearthController < ApplicationController
   end
 
 
+  def thermal_dirs
+    spread = 20
+    seg_i = 360 / spread
+    @dirs=[]
+     (0..seg_i-1).each {|s|
+      dir = {:dir => (s*spread),:spread => spread}
+      @dirs << dir
+    }
+
+    respond_to do |format|
+      #format.html # index.html.erb
+      format.kml  # index.kml.builder
+    end
+  end
+
   def thermals
     @centre=["0","0"]
     @bbox=["0","0","0","0"]
@@ -152,17 +167,17 @@ class GearthController < ApplicationController
     #debugger
 
     puts 'thermals '
-    direction=0
-    direction = params[direction] unless params[direction].nil?
+    dir=0
+    dir = params[dir] unless params[dir].nil?
     spread=20 # default
     spread = params[spread] unless params[spread].nil?
 
-    from_rad = (direction - spread/2) * Constants::RAD_PER_DEG
+    from_rad = (dir - spread/2) * Constants::RAD_PER_DEG
     if from_rad < 0
       from_rad = from_rad + (Constants::PI * 2)
     end
 
-    to_rad = (direction + spread/2) * Constants::RAD_PER_DEG
+    to_rad = (dir + spread/2) * Constants::RAD_PER_DEG
     if to_rad < 0
       to_rad = to_rad + (Constants::PI * 2)
     end
@@ -172,11 +187,11 @@ class GearthController < ApplicationController
                                    :order => "seq_secs DESC",
       :conditions => [ "direction >= ? AND direction < ?",  from_rad, to_rad]  )
     else
-       @windpoints1 = Windpoint.find(:all,
-                                   :order => "seq_secs DESC",
+      @windpoints1 = Windpoint.find(:all,
+                                    :order => "seq_secs DESC",
       :conditions => [ "direction >= ? AND direction < ?",  from_rad, 0.0]  )
 
-       @windpoints = Windpoint.find(:all,
+      @windpoints = Windpoint.find(:all,
                                    :order => "seq_secs DESC",
       :conditions => [ "direction >= ? AND direction < ?",  0.0, to_rad]  )
 
