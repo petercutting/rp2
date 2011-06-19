@@ -32,8 +32,6 @@ class GearthController < ApplicationController
     return f
   end
 
-  #http://localhost:3000/gearth/igc
-
 
   #http://localhost:3000/gearth/network_link3?path=public/data
 
@@ -60,10 +58,6 @@ class GearthController < ApplicationController
       end
     end
 
-    # Cycle through directory
-    roots.each do |r|
-      Dir.foreach(r + "*") do |e|
-
     if not params[:path].nil?
       #puts 'path ' + path
       #puts 'p ' + Dir.pwd
@@ -77,7 +71,6 @@ class GearthController < ApplicationController
 
       # Cycle through directory
       Dir.foreach(path) do |e|
-
         entry = path + "/" + e
         #puts entry.inspect
 
@@ -108,87 +101,8 @@ class GearthController < ApplicationController
     end
   end
 
-  #http://localhost:3000/gearth/network_link3?path=public/data
 
-  def network_link3
-    puts "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-    puts 'network_link3 ' + params.inspect
-
-    @entries = []
-
-    if params[:path].nil?
-      roots = []
-
-      @igcfs = Igcfile.find(:all, :order => 'path')  # get files
-      @igcfs.each do |igcf|    # for each file
-        #puts igcf.path
-        update_substr(roots ,igcf.path)
-      end
-      puts roots.inspect
-
-      roots.each do |r|
-        entry = r
-
-        if entry.last == "."
-          #puts 'ignoring ' + entry
-          next
-        end
-
-        puts entry.inspect
-        if File.directory?(entry)
-          #puts 'dir2 ' + entry
-          @entries << entry
-          next
-        end
-
-        if File.file?(entry)
-          if entry.downcase.match(".igc")
-            #puts 'igc ' + entry
-            @entries << entry
-            next
-          end
-        end
-      end
-    end
-
-    if not params[:path].nil?
-      # Cycle through directory
-      Dir.foreach(params[:path]) do |e|
-        entry = params[:path] + "/" + e
-
-        if entry.last == "."
-          #puts 'ignoring ' + entry
-          next
-        end
-
-        puts entry.inspect
-        if File.directory?(entry)
-          #puts 'dir2 ' + entry
-          @entries << entry
-          next
-
-        end
-
-        if File.file?(entry)
-          if entry.downcase.match(".igc")
-            #puts 'igc ' + entry
-            @entries << entry
-            next
-          end
-        else
-          puts "THIS FILE NO LONGER EXISTS" + entry
-        end
-      end
-    end
-
-    respond_to do |format|
-      #format.html # index.html.erb
-      format.kml  # index.kml.builder
-    end
-  end
-
-
-  def igc_off
+  def igc
     #puts 'network_link3' + Constants::XX
     path = "public/data"
     path = "c:/Users/peter/workspace_rails/igcsmall"
