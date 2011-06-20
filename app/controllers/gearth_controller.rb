@@ -33,6 +33,11 @@ class GearthController < ApplicationController
   end
 
 
+
+#while(fullPath.EndsWith(Path.DirectorySeparatorChar.ToString())){
+#   fullPath = fullPath.Substring(0, fullPath.Length-1);
+#}
+
   #http://localhost:3000/gearth/network_link3?path=public/data
 
   def network_link3
@@ -52,6 +57,7 @@ class GearthController < ApplicationController
         update_substr(roots ,igcf.path)
       end
       puts roots.inspect
+
       $stdout.flush
       roots.each do |r|
         @entries << r
