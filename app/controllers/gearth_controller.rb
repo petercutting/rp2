@@ -32,11 +32,24 @@ class GearthController < ApplicationController
     return f
   end
 
+  #  def trim_to_dir_sep(p)
+  #    while p[p.length]=="/" do
+  #      p = p[0..p.length-1]
+  #      puts p
+  #    end
+  #  end
 
+  def trim_to_dir_sep(p)
+    l=p.length
+    while l>0 do
+      #puts p[l].chr
+      if p[l-1].chr==File::SEPARATOR
+        return p[0...l]
+      end
+      l=l-1
+    end
+  end
 
-#while(fullPath.EndsWith(Path.DirectorySeparatorChar.ToString())){
-#   fullPath = fullPath.Substring(0, fullPath.Length-1);
-#}
 
   #http://localhost:3000/gearth/network_link3?path=public/data
 
@@ -60,9 +73,12 @@ class GearthController < ApplicationController
 
       $stdout.flush
       roots.each do |r|
-        @entries << r
+        @entries << trim_to_dir_sep(r)
       end
     end
+    puts 'a'
+
+    puts @entries.inspect
 
     if not params[:path].nil?
       #puts 'path ' + path
