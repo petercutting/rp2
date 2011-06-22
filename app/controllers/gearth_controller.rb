@@ -84,13 +84,6 @@ class GearthController < ApplicationController
       #puts 'path ' + path
       #puts 'p ' + Dir.pwd
 
-      #igcps = igcf.igcpoint(:all, :order => 'seq_secs')   # get points
-      #igcps.each do |igcp|          # for each point
-      #@ps<<(igcp.rlon/RAD_PER_DEG).to_s + ',' + (igcp.rlat/RAD_PER_DEG).to_s + ',' + igcp.baro_alt.to_s + "\n"         # push data to array
-      #@ps<<[igcp.dlat.to_s,igcp.dlon.to_s]         # push data to array
-      #puts [igcp.dlat.to_s,igcp.dlon.to_s].inspect
-      # end
-
       # Cycle through directory
       Dir.foreach(path) do |e|
         entry = path + "/" + e
@@ -188,11 +181,12 @@ class GearthController < ApplicationController
     @bbox = params[:BBOX].split(",") unless params[:BBOX].nil?
     #debugger
 
-    puts 'thermals '
     dir=0
-    dir = params[dir] unless params[dir].nil?
+    dir = params[:dir].to_i unless params[:dir].nil?
     spread=20 # default
-    spread = params[spread] unless params[spread].nil?
+    spread = params[:spread].to_i unless params[:spread].nil?
+
+    puts 'thermals ' + dir.to_s + " " + spread.to_s
 
     from_rad = (dir - spread/2) * Constants::RAD_PER_DEG
     if from_rad < 0

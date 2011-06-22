@@ -7,7 +7,7 @@ xml.Document {
 
     xml.NetworkLink {
     xml.name( "#{dir[:dir]}")
-    xml.open(1)
+    xml.open(0)
     xml.visibility(0)
     xml.flyToView(0)
     xml.Link {
