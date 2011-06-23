@@ -189,13 +189,13 @@ class GearthController < ApplicationController
     puts 'thermals ' + dir.to_s + " " + spread.to_s
 
     from_rad = (dir - spread/2) * Constants::RAD_PER_DEG
-    if from_rad < 0
-      from_rad = from_rad + (Constants::PI * 2)
+    if from_rad < 0.0
+      from_rad = from_rad + (Constants::PI * 2.0)
     end
 
     to_rad = (dir + spread/2) * Constants::RAD_PER_DEG
-    if to_rad < 0
-      to_rad = to_rad + (Constants::PI * 2)
+    if to_rad < 0.0
+      to_rad = to_rad + (Constants::PI * 2.0)
     end
 
     if from_rad < to_rad

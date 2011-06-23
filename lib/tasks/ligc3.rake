@@ -4,6 +4,7 @@ desc "Loads IGC files from specified directory (or .)"
 # rake ligc3[c:/Users/peter/workspace_rails/igcsmall,0]
 
 # rake ligc3[.,0]
+# rake ligc3["C:\rstonline",1]  # 1 == clear DB
 # rake ligc3[public/data,0]
 # rake ligc3[public/data/NewFolder,0]
 # rake ligc3["C:\Documents and Settings/Peter Cutting/My Documents/soaring/logs",0]
@@ -48,10 +49,12 @@ task :ligc3, [:dir,:proc_version] => :environment do |t, args|
       puts 'directory is ' + dir
       num_recs=0
 
-      Igcfile.destroy_all
-      Igcpoint.destroy_all
-      Windpoint.destroy_all
-
+      if proc_version == 1
+        puts 'clearing DB'
+        Igcfile.destroy_all
+        Igcpoint.destroy_all
+        Windpoint.destroy_all
+      end
       WalkDirs(dir,proc_version)
     end
 
