@@ -39,11 +39,13 @@ class GearthController < ApplicationController
   #    end
   #  end
 
+
+
   def trim_to_dir_sep(p)
     l=p.length
     while l>0 do
       #puts p[l].chr
-      if p[l-1].chr==File::SEPARATOR
+      if p[l-1].chr==File::SEPARATOR or p[l-1].chr==File::ALT_SEPARATOR
         return p[0...l]
       end
       l=l-1
@@ -174,6 +176,7 @@ class GearthController < ApplicationController
     end
   end
 
+
   def thermals
     @centre=["0","0"]
     @bbox=["0","0","0","0"]
@@ -199,23 +202,45 @@ class GearthController < ApplicationController
     end
 
     if from_rad < to_rad
-      @windpoints = Windpoint.find(:all,
-                                   :order => "seq_secs DESC",
+      @windpoints = Windpoint.find(:all, :order => "seq_secs DESC",
       :conditions => [ "direction >= ? AND direction < ?",  from_rad, to_rad]  )
     else
-      @windpoints1 = Windpoint.find(:all,
-                                    :order => "seq_secs DESC",
+      @windpoints1 = Windpoint.find(:all, :order => "seq_secs DESC",
       :conditions => [ "direction >= ? AND direction < ?",  from_rad, 0.0]  )
 
-      @windpoints = Windpoint.find(:all,
-                                   :order => "seq_secs DESC",
+      @windpoints = Windpoint.find(:all, :order => "seq_secs DESC",
       :conditions => [ "direction >= ? AND direction < ?",  0.0, to_rad]  )
 
       @windpoints = @windpoints + @windpoints1
     end
 
+    @thermal_sources=[]
 
     @windpoints.each {|wp|
+
+    reverse=(wp[:direction] + Constants::PI) % (2*Constants::PI)
+    reverse=(wp[:direction] ) % (2*Constants::PI)
+
+      secs =  wp[:altitude] / wp[:climb]
+      dis = secs * wp[:speed]
+      d=dis/Constants::RADIUS
+      lat0=Math.asin(Math.sin(wp[:dlat])*Math.cos(d)+Math.cos(wp[:dlat])*Math.sin(d)*Math.cos(reverse))
+      if (Math.cos(lat0)==0)
+        lon0=wp[:dlon]      # endpoint a pole
+      else
+        begin
+          #          puts
+          lon0=(
+           (wp[:dlon]-
+           Math.asin( Math.sin(reverse)* Math.sin(d)/Math.cos(lat0))+Constants::PI) % (2*Constants::PI))-Constants::PI
+          rescue
+        end
+      end
+
+      thermal_source={:lat0 => lat0 / Constants::RAD_PER_DEG, :lon0 => lon0 / Constants::RAD_PER_DEG, :altitude0 => 0.0,
+        :lat1=>wp[:dlat] / Constants::RAD_PER_DEG, :lon1 => wp[:dlon] / Constants::RAD_PER_DEG, :altitude1 => wp[:altitude]}
+        @thermal_sources << thermal_source
+
       wp[:dlon] = wp[:dlon] / Constants::RAD_PER_DEG
       wp[:dlat] = wp[:dlat] / Constants::RAD_PER_DEG
       wp[:dlon2] = wp[:dlon2] / Constants::RAD_PER_DEG

@@ -61,20 +61,10 @@ class Windpoint < ActiveRecord::Base
           if climb > 0.2
 
             # wind direction is back from point 2 to point 1
-            #lon2 = thermal_start[:malon]*Constants::RAD_PER_DEG
-            #lat2 = thermal_start[:malat]*Constants::RAD_PER_DEG
-            #lon1 = thermal_end[:malon]*Constants::RAD_PER_DEG
-            #lat1 = thermal_end[:malat]*Constants::RAD_PER_DEG
-                        lon2 = thermal_start[:malon]
-                        lat2 = thermal_start[:malat]
-                        lon1 = thermal_end[:malon]
-                        lat1 = thermal_end[:malat]
-
-            #lon1 = thermal_start[:malon]
-            #lat1 = thermal_start[:malat]
-            #lon2 = thermal_end[:malon]
-            #lat2 = thermal_end[:malat]
-
+            lon2 = thermal_start[:malon]
+            lat2 = thermal_start[:malat]
+            lon1 = thermal_end[:malon]
+            lat1 = thermal_end[:malat]
 
             #            puts lon1.to_s + " " + lat1.to_s
             #            puts lon2.to_s + " " + lat2.to_s
@@ -90,31 +80,24 @@ class Windpoint < ActiveRecord::Base
             #y = Math.sin(lon2-lon1) * Math.cos(lat2)
             #x = Math.cos(lat1)*Math.sin(lat2) -  Math.sin(lat1)*Math.cos(lat2)*Math.cos(lon2-lon1)
             #direction = Math.atan2(y,x)
-#            save =0
-#            puts d.to_s + " " + lat1.to_s + " " + lon1.to_s + " " + lat2.to_s + " " + lon2.to_s
-#
-#            if Math.sin(lon2-lon1)<0
-#              begin
-#                direction=Math.acos((Math.sin(lat2)-Math.sin(lat1)*Math.cos(d))/(Math.sin(d)*Math.cos(lat1)))
-#                rescue Exception=>e
-#                puts z.to_s
-#                puts d.to_s + " " + lat1.to_s + " " + lon1.to_s + " " + lat2.to_s + " " + lon2.to_s + "X"
-#                save=1
-#              end
-#            else
-#              direction=2*Constants::PI-Math.acos((Math.sin(lat2)-Math.sin(lat1)*Math.cos(d))/(Math.sin(d)*Math.cos(lat1)))
-#            end
+            #            save =0
+            #            puts d.to_s + " " + lat1.to_s + " " + lon1.to_s + " " + lat2.to_s + " " + lon2.to_s
+            #
+            #            if Math.sin(lon2-lon1)<0
+            #              begin
+            #                direction=Math.acos((Math.sin(lat2)-Math.sin(lat1)*Math.cos(d))/(Math.sin(d)*Math.cos(lat1)))
+            #                rescue Exception=>e
+            #                puts z.to_s
+            #                puts d.to_s + " " + lat1.to_s + " " + lon1.to_s + " " + lat2.to_s + " " + lon2.to_s + "X"
+            #                save=1
+            #              end
+            #            else
+            #              direction=2*Constants::PI-Math.acos((Math.sin(lat2)-Math.sin(lat1)*Math.cos(d))/(Math.sin(d)*Math.cos(lat1)))
+            #            end
 
             y = Math.sin(lon2-lon1) * Math.cos(lat2)
             x = Math.cos(lat1)*Math.sin(lat2) -  Math.sin(lat1)*Math.cos(lat2)*Math.cos(lon2-lon1)
             direction = (Math.atan2(y,x)+(2*Constants::PI)) % (2*Constants::PI)
-
-            # alternative calculation
-            #direction = Math.atan2(Math.sin(lon1-lon2)*Math.cos(lat2),
-            #           Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(lon1-lon2))% (2*Constants::PI)
-
-
-
 
             speed = d*Constants::RADIUS / (thermal_end[:seq_secs] - thermal_start[:seq_secs])
 
@@ -125,12 +108,12 @@ class Windpoint < ActiveRecord::Base
             #            " dir " + direction.to_s[0,4] +
             #            " speed " + speed.to_s[0,4]
 
-              w = Windpoint.new(:igcfile_id => igcfile.id,:speed => speed, :direction => direction, :climb => climb,
-                                :altitude => thermal_start[:baro_alt], :dlat => thermal_start[:malat],
-                                :dlon => thermal_start[:malon], :seq_secs => thermal_start[:seq_secs],
-                                :altitude2 => thermal_end[:baro_alt], :dlat2 => thermal_end[:malat],
-                                :dlon2 => thermal_end[:malon], :seq_secs2 => thermal_end[:seq_secs])
-              w.save
+            w = Windpoint.new(:igcfile_id => igcfile.id,:speed => speed, :direction => direction, :climb => climb,
+                              :altitude => thermal_start[:baro_alt], :dlat => thermal_start[:malat],
+                              :dlon => thermal_start[:malon], :seq_secs => thermal_start[:seq_secs],
+                              :altitude2 => thermal_end[:baro_alt], :dlat2 => thermal_end[:malat],
+                              :dlon2 => thermal_end[:malon], :seq_secs2 => thermal_end[:seq_secs])
+            w.save
 
           end
 
