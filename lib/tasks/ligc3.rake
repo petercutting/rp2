@@ -4,7 +4,7 @@ desc "Loads IGC files from specified directory (or .)"
 # rake ligc3[c:/Users/peter/workspace_rails/igcsmall,0]
 
 # rake ligc3[.,0]
-# rake ligc3["C:\rstonline",1]  # 1 == clear DB
+# rake ligc3["C:\rstonline\2010",1]  # 1 == clear DB
 # rake ligc3[public/data,0]
 # rake ligc3[public/data/NewFolder,0]
 # rake ligc3["C:\Documents and Settings/Peter Cutting/My Documents/soaring/logs",0]

@@ -95,9 +95,9 @@ class Windpoint < ActiveRecord::Base
             #              direction=2*Constants::PI-Math.acos((Math.sin(lat2)-Math.sin(lat1)*Math.cos(d))/(Math.sin(d)*Math.cos(lat1)))
             #            end
 
-            y = Math.sin(lon2-lon1) * Math.cos(lat2)
-            x = Math.cos(lat1)*Math.sin(lat2) -  Math.sin(lat1)*Math.cos(lat2)*Math.cos(lon2-lon1)
-            direction = (Math.atan2(y,x)+(2*Constants::PI)) % (2*Constants::PI)
+            y = Math.sin(lon1-lon2) * Math.cos(lat2)
+            x = (Math.cos(lat1)*Math.sin(lat2)) - (Math.sin(lat1)*Math.cos(lat2)*Math.cos(lon1-lon2))
+            direction = (Math.atan2(y,x)) % (2*Constants::PI)
 
             speed = d*Constants::RADIUS / (thermal_end[:seq_secs] - thermal_start[:seq_secs])
 

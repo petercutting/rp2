@@ -219,7 +219,7 @@ class GearthController < ApplicationController
     @windpoints.each {|wp|
 
     reverse=(wp[:direction] + Constants::PI) % (2*Constants::PI)
-    reverse=(wp[:direction] ) % (2*Constants::PI)
+    #reverse=(wp[:direction] ) % (2*Constants::PI)
 
       secs =  wp[:altitude] / wp[:climb]
       dis = secs * wp[:speed]
@@ -230,9 +230,20 @@ class GearthController < ApplicationController
       else
         begin
           #          puts
-          lon0=(
-           (wp[:dlon]-
-           Math.asin( Math.sin(reverse)* Math.sin(d)/Math.cos(lat0))+Constants::PI) % (2*Constants::PI))-Constants::PI
+#          lon0=(
+#           (wp[:dlon]-
+#           Math.asin( Math.sin(reverse)* Math.sin(d)/Math.cos(lat0))+Constants::PI) % (2*Constants::PI))-Constants::PI
+#          lon0=(
+#           (wp[:dlon]+
+#           Math.atan2( Math.cos(d) - Math.sin(wp[:dlat])*Math.sin(lat0),Math.cos(d)-Math.sin(wp[:dlat])*Math.sin(lat0))
+#           ))
+
+          lont=(
+           Math.atan2( Math.sin(reverse) * Math.sin(d) * Math.cos(wp[:dlat]) , Math.cos(d)-Math.sin(wp[:dlat])*Math.sin(lat0))
+           )
+
+           lon0=((wp[:dlon]- lont + Constants::PI) % (2*Constants::PI))-Constants::PI
+
           rescue
         end
       end
