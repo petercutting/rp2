@@ -15,7 +15,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
 		xml.name("thermals")
 		xml.Style {
 			xml.LineStyle {
-				xml.color("8f00008f")
+				xml.color("ffffffff")
 				xml.width("3")
 			}
     	}
@@ -27,7 +27,7 @@ xml.kml(:xmlns => "http://earth.google.com/kml/2.2") do
 					xml.altitudeMode("absolute")
 					xml.coordinates {
 						xml.text! "#{o[:dlon]},#{o[:dlat]},#{o[:altitude]} "
-						xml.text! "#{o[:dlon2]},#{o[:dlat2]},#{o[:altitude2]} "
+						xml.text! "#{o[:dlon2]},#{o[:dlat2]},#{o[:altitude]} "
 					}
         		}
 			end
